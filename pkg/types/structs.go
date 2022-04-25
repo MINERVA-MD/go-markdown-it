@@ -66,7 +66,20 @@ type Token struct {
 }
 
 type RuleFunction func()
+type HighlightFn func(string, string, string) string
 type Cache map[string][]RuleFunction
+type Core struct {
+	Rules []string
+}
+
+type Block struct {
+	Rules []string
+}
+
+type Inline struct {
+	Rules  []string
+	Rules2 []string
+}
 
 type Rule struct {
 	Name    string
@@ -76,7 +89,43 @@ type Rule struct {
 	// TODO: convert ^this tuple to its own type
 }
 
+type Env struct {
+	info string
+}
+
 type Ruler struct {
 	Rules []Rule
 	Cache Cache
 }
+
+type Options struct {
+	Html       bool
+	XhtmlOut   bool
+	Breaks     bool
+	Linkify    bool
+	LangPrefix string
+
+	// Enable some language-neutral replacements + quotes beautification
+	Typography bool
+	MaxNesting uint8
+	Quotes     [4]string
+	Highlight  HighlightFn
+}
+
+type Components struct {
+	Core   Core
+	Block  Block
+	Inline Inline
+}
+
+type Preset struct {
+	Options    Options
+	Components Components
+}
+
+//type Renderer interface {
+//	RenderAttrs(token *Token) string
+//	RenderToken(tokens []*Token, idx int, options Options)
+//	RenderInline(tokens []*Token, options Options, env string)
+//	RenderInlineAsText()
+//}
