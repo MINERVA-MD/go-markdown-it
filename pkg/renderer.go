@@ -6,7 +6,12 @@ import (
 	"strings"
 )
 
-func RenderAttrs(token *Token) string {
+type Rules struct{}
+type Renderer struct {
+	Rules Rules
+}
+
+func (r *Renderer) RenderAttrs(token *Token) string {
 	var result = ""
 
 	if token.Attrs == nil {
@@ -20,7 +25,7 @@ func RenderAttrs(token *Token) string {
 	return result
 }
 
-func RenderToken(tokens []*Token, idx int, options Options) string {
+func (r *Renderer) RenderToken(tokens []*Token, idx int, options Options) string {
 	var nextToken *Token
 	var result = ""
 	var needLf = false
@@ -46,7 +51,7 @@ func RenderToken(tokens []*Token, idx int, options Options) string {
 	}
 
 	// Encode attributes, e.g. `<img src="foo"`
-	result += RenderAttrs(token)
+	result += r.RenderAttrs(token)
 
 	// Add a slash for self-closing tags, e.g. `<img src="foo" /`
 	if token.Nesting == 0 && options.XhtmlOut {
@@ -79,27 +84,27 @@ func RenderToken(tokens []*Token, idx int, options Options) string {
 	return result
 }
 
-func RenderInline(tokens []*Token, options Options, env Env) string {
+func (r *Renderer) RenderInline(tokens []*Token, options Options, env Env) string {
 	var result string
 
 	for idx, token := range tokens {
-		if IsRuleTypeValid(token.Type) {
-			result += RenderRule(token.Type, tokens, idx, options, env)
+		if r.Rules.IsRuleTypeValid(token.Type) {
+			result += r.RenderRule(token.Type, tokens, idx, options, env)
 		} else {
-			result += RenderToken(tokens, idx, options)
+			result += r.RenderToken(tokens, idx, options)
 		}
 	}
 	return result
 }
 
-func RenderInlineAsText(tokens []*Token, options Options, env Env) string {
+func (r *Renderer) RenderInlineAsText(tokens []*Token, options Options, env Env) string {
 	var result = ""
 
 	for _, token := range tokens {
 		if token.Type == "text" {
 			result += token.Content
 		} else if token.Type == "image" {
-			result += RenderInlineAsText(token.Children, options, env)
+			result += r.RenderInlineAsText(token.Children, options, env)
 		} else if token.Type == "softbreak" {
 			result += "\n"
 		}
@@ -107,49 +112,49 @@ func RenderInlineAsText(tokens []*Token, options Options, env Env) string {
 	return result
 }
 
-func Render(tokens []*Token, options Options, env Env) string {
+func (r *Renderer) Render(tokens []*Token, options Options, env Env) string {
 	var result = ""
 
 	for idx, token := range tokens {
 		if token.Type == "inline" {
-			result += RenderInline(token.Children, options, env)
-		} else if IsRuleTypeValid(token.Type) {
-			result += RenderRule(token.Type, tokens, idx, options, env)
+			result += r.RenderInline(token.Children, options, env)
+		} else if r.Rules.IsRuleTypeValid(token.Type) {
+			result += r.RenderRule(token.Type, tokens, idx, options, env)
 		} else {
-			result += RenderToken(tokens, idx, options)
+			result += r.RenderToken(tokens, idx, options)
 		}
 	}
 	return result
 }
 
-func RenderRule(Type string, tokens []*Token, idx int, options Options, env Env) string {
+func (r *Renderer) RenderRule(Type string, tokens []*Token, idx int, options Options, env Env) string {
 	switch Type {
 	case "code_inline":
-		return CodeInline(tokens, idx, options, env)
+		return r.Rules.CodeInline(tokens, idx, options, env, r)
 
 	case "code_block":
-		return CodeBlock(tokens, idx, options, env)
+		return r.Rules.CodeBlock(tokens, idx, options, env, r)
 
 	case "fence":
-		return Fence(tokens, idx, options, env)
+		return r.Rules.Fence(tokens, idx, options, env, r)
 
 	case "image":
-		return Image(tokens, idx, options, env)
+		return r.Rules.Image(tokens, idx, options, env, r)
 
 	case "hardbreak":
-		return Hardbreak(options)
+		return r.Rules.Hardbreak(options)
 
 	case "softbreak":
-		return Softbreak(options)
+		return r.Rules.Softbreak(options)
 
 	case "text":
-		return Text(tokens, idx)
+		return r.Rules.Text(tokens, idx)
 
 	case "html_block":
-		return HtmlBlock(tokens, idx)
+		return r.Rules.HtmlBlock(tokens, idx)
 
 	case "html_inline":
-		return HtmlInline(tokens, idx)
+		return r.Rules.HtmlInline(tokens, idx)
 
 	default:
 		return ""
@@ -158,19 +163,19 @@ func RenderRule(Type string, tokens []*Token, idx int, options Options, env Env)
 
 //===========================================================================
 
-func HtmlInline(tokens []*Token, idx int) string {
+func (rules Rules) HtmlInline(tokens []*Token, idx int) string {
 	return tokens[idx].Content
 }
 
-func HtmlBlock(tokens []*Token, idx int) string {
+func (rules Rules) HtmlBlock(tokens []*Token, idx int) string {
 	return tokens[idx].Content
 }
 
-func Text(tokens []*Token, idx int) string {
+func (rules Rules) Text(tokens []*Token, idx int) string {
 	return EscapeHtml(tokens[idx].Content)
 }
 
-func Softbreak(options Options) string {
+func (rules Rules) Softbreak(options Options) string {
 	if options.Breaks {
 		if options.XhtmlOut {
 			return "<br />\n"
@@ -180,22 +185,22 @@ func Softbreak(options Options) string {
 	return "\n"
 }
 
-func Hardbreak(options Options) string {
+func (rules Rules) Hardbreak(options Options) string {
 	if options.XhtmlOut {
 		return "<br />\n"
 	}
 	return "<br>\n"
 }
 
-func Image(tokens []*Token, idx int, options Options, env Env) string {
+func (rules Rules) Image(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
 	var token = tokens[idx]
-	var attrIdx = AttrIndex(token, "alt")
-	token.Attrs[attrIdx].Value = RenderInlineAsText(tokens, options, env)
+	var attrIdx = token.AttrIndex("alt")
+	token.Attrs[attrIdx].Value = renderer.RenderInlineAsText(tokens, options, env)
 
-	return RenderToken(tokens, idx, options)
+	return renderer.RenderToken(tokens, idx, options)
 }
 
-func Fence(tokens []*Token, idx int, options Options, env Env) string {
+func (rules Rules) Fence(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
 
 	var info string
 	var arr []string
@@ -233,7 +238,7 @@ func Fence(tokens []*Token, idx int, options Options, env Env) string {
 	}
 
 	if len(info) > 0 {
-		var i = AttrIndex(token, "class")
+		var i = token.AttrIndex("class")
 		if token.Attrs != nil {
 			copy(tmpAttrs, token.Attrs)
 		} else {
@@ -256,33 +261,33 @@ func Fence(tokens []*Token, idx int, options Options, env Env) string {
 
 		tmpToken = &Token{Attrs: tmpAttrs}
 
-		return "<pre><code" + RenderAttrs(tmpToken) + ">" +
+		return "<pre><code" + renderer.RenderAttrs(tmpToken) + ">" +
 			highlighted +
 			"</code></pre>\n"
 	}
 
-	return "<pre><code" + RenderAttrs(token) + ">" +
+	return "<pre><code" + renderer.RenderAttrs(token) + ">" +
 		highlighted +
 		"</code></pre>\n"
 }
 
-func CodeBlock(tokens []*Token, idx int, options Options, env Env) string {
+func (rules Rules) CodeBlock(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
 	var token = tokens[idx]
 
-	return "<pre" + RenderAttrs(token) + "><code>" +
+	return "<pre" + renderer.RenderAttrs(token) + "><code>" +
 		EscapeHtml(tokens[idx].Content) +
 		"</code></pre>\n"
 }
 
-func CodeInline(tokens []*Token, idx int, options Options, env Env) string {
+func (rules Rules) CodeInline(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
 	var token = tokens[idx]
 
-	return "<code" + RenderAttrs(token) + ">" +
+	return "<code" + renderer.RenderAttrs(token) + ">" +
 		EscapeHtml(tokens[idx].Content) +
 		"</code>"
 }
 
-func IsRuleTypeValid(Type string) bool {
+func (rules Rules) IsRuleTypeValid(Type string) bool {
 
 	switch Type {
 	case "code_inline":

@@ -53,3 +53,5 @@ var REGEXP_ESCAPE_RE = regexp.MustCompile("[.?*+^$[\\]\\(){}|-]")
 
 var WHITESPACE_RE = regexp.MustCompile("\\s+")
 var SPACE_RE = regexp.MustCompile("(\\s+)")
+
+var NEWLINES_RE = regexp.MustCompile("\\r\\n?|\\n")

@@ -6,11 +6,16 @@ import (
 	. "go-markdown-it/pkg/types"
 )
 
+type Ruler struct {
+	Rules []Rule
+	Cache Cache
+}
+
 // Helper methods
 
-// RulerFind finds rule index by name
+// Find finds rule index by name
 // Returns the index if found, otherwise -1.
-func RulerFind(ruler *Ruler, name string) int {
+func (ruler *Ruler) Find(name string) int {
 	for idx, rule := range ruler.Rules {
 		if rule.Name == name {
 			return idx
@@ -19,7 +24,7 @@ func RulerFind(ruler *Ruler, name string) int {
 	return -1
 }
 
-func RulerCompile(ruler *Ruler) {
+func (ruler *Ruler) Compile() {
 	var chains = []string{""}
 
 	// Collect unique names
@@ -53,8 +58,8 @@ func RulerCompile(ruler *Ruler) {
 	}
 }
 
-func RulerAt(ruler *Ruler, name string, fn RuleFunction, options Rule) error {
-	var idx = RulerFind(ruler, name)
+func (ruler *Ruler) RulerAt(name string, fn RuleFunction, options Rule) error {
+	var idx = ruler.Find(name)
 
 	if idx == -1 {
 		return errors.New(fmt.Sprintf("Parser rule not found: %s", name))
@@ -72,31 +77,29 @@ func RulerAt(ruler *Ruler, name string, fn RuleFunction, options Rule) error {
 	return nil
 }
 
-// RulerBefore adds new rule to chain before one with given name.
-func RulerBefore(
-	ruler *Ruler,
+// Before adds new rule to chain before one with given name.
+func (ruler *Ruler) Before(
 	beforeName string,
 	ruleName string,
 	fn RuleFunction,
 	options Rule) error {
 
-	var idx = RulerFind(ruler, beforeName)
-	return RulerInsert(ruler, idx, options, ruleName, fn)
+	var idx = ruler.Find(beforeName)
+	return ruler.Insert(idx, options, ruleName, fn)
 }
 
-// RulerAfter adds new rule to chain after one with given name.
-func RulerAfter(
-	ruler *Ruler,
+// After adds new rule to chain after one with given name.
+func (ruler *Ruler) After(
 	afterName string,
 	ruleName string,
 	fn RuleFunction,
 	options Rule) error {
 
-	var idx = RulerFind(ruler, afterName)
-	return RulerInsert(ruler, idx+1, options, ruleName, fn)
+	var idx = ruler.Find(afterName)
+	return ruler.Insert(idx+1, options, ruleName, fn)
 }
 
-func RulerInsert(ruler *Ruler, idx int, options Rule, ruleName string, fn RuleFunction) error {
+func (ruler *Ruler) Insert(idx int, options Rule, ruleName string, fn RuleFunction) error {
 	if idx == -1 {
 		return errors.New(fmt.Sprintf("Parser rule not found: %s", ruleName))
 	}
@@ -108,7 +111,7 @@ func RulerInsert(ruler *Ruler, idx int, options Rule, ruleName string, fn RuleFu
 		alt = []string{}
 	}
 
-	ruler.Rules = InsertAt(ruler.Rules, idx, Rule{
+	ruler.Rules = ruler.InsertAt(ruler.Rules, idx, Rule{
 		Name:    ruleName,
 		Enabled: true,
 		Fn:      fn,
@@ -119,8 +122,7 @@ func RulerInsert(ruler *Ruler, idx int, options Rule, ruleName string, fn RuleFu
 	return nil
 }
 
-func RulerPush(
-	ruler *Ruler,
+func (ruler *Ruler) Push(
 	ruleName string,
 	fn RuleFunction,
 	options Rule) {
@@ -140,12 +142,12 @@ func RulerPush(
 	})
 }
 
-func RulerEnable(ruler *Ruler, list []string, ignoreInvalid bool) ([]string, error) {
+func (ruler *Ruler) Enable(list []string, ignoreInvalid bool) ([]string, error) {
 	var result []string
 
 	// Search by name and enable
 	for _, name := range list {
-		var idx = RulerFind(ruler, name)
+		var idx = ruler.Find(name)
 
 		if idx < 0 {
 			if ignoreInvalid {
@@ -162,21 +164,21 @@ func RulerEnable(ruler *Ruler, list []string, ignoreInvalid bool) ([]string, err
 	return result, nil
 }
 
-func RulerEnableOnly(ruler *Ruler, list []string, ignoreInvalid bool) {
+func (ruler *Ruler) EnableOnly(list []string, ignoreInvalid bool) {
 
 	for _, rule := range ruler.Rules {
 		rule.Enabled = false
 	}
 
-	_, _ = RulerEnable(ruler, list, ignoreInvalid)
+	_, _ = ruler.Enable(list, ignoreInvalid)
 }
 
-func RulerDisable(ruler *Ruler, list []string, ignoreInvalid bool) ([]string, error) {
+func (ruler *Ruler) Disable(list []string, ignoreInvalid bool) ([]string, error) {
 	var result []string
 
 	// Search by name and enable
 	for _, name := range list {
-		var idx = RulerFind(ruler, name)
+		var idx = ruler.Find(name)
 
 		if idx < 0 {
 			if ignoreInvalid {
@@ -193,9 +195,9 @@ func RulerDisable(ruler *Ruler, list []string, ignoreInvalid bool) ([]string, er
 	return result, nil
 }
 
-func RulerGetRules(ruler *Ruler, chainName string) []RuleFunction {
+func (ruler *Ruler) GetRules(chainName string) []RuleFunction {
 	if ruler.Cache == nil {
-		RulerCompile(ruler)
+		ruler.Compile()
 	}
 
 	// Chain can be empty, if rules disabled. But we still have to return Array.
@@ -205,7 +207,7 @@ func RulerGetRules(ruler *Ruler, chainName string) []RuleFunction {
 	return []RuleFunction{}
 }
 
-func InsertAt(rules []Rule, idx int, rule Rule) []Rule {
+func (ruler *Ruler) InsertAt(rules []Rule, idx int, rule Rule) []Rule {
 	if idx >= len(rules) { // nil or empty slice or after last element
 		return append(rules, rule)
 	}
