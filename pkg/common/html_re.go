@@ -2,7 +2,9 @@ package common
 
 import (
 	"fmt"
+	. "go-markdown-it/pkg/types"
 	"regexp"
+	"strings"
 )
 
 var ATTR_NAME = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
@@ -55,3 +57,41 @@ var WHITESPACE_RE = regexp.MustCompile("\\s+")
 var SPACE_RE = regexp.MustCompile("(\\s+)")
 
 var NEWLINES_RE = regexp.MustCompile("\\r\\n?|\\n")
+
+var HTML_SEQUENCES = []HtmlSequence{
+	{
+		Start:     regexp.MustCompile("(?i)^<(script|pre|style|textarea)(?=(\\s|>|$))"),
+		End:       regexp.MustCompile("(?i)<\\/(script|pre|style|textarea)>"),
+		Terminate: true,
+	},
+	{
+		Start:     regexp.MustCompile("^<!--"),
+		End:       regexp.MustCompile("-->"),
+		Terminate: true,
+	},
+	{
+		Start:     regexp.MustCompile("^<\\?"),
+		End:       regexp.MustCompile("\\?>"),
+		Terminate: true,
+	},
+	{
+		Start:     regexp.MustCompile("^<![A-Z]"),
+		End:       regexp.MustCompile(">"),
+		Terminate: true,
+	},
+	{
+		Start:     regexp.MustCompile("^<!\\[CDATA\\["),
+		End:       regexp.MustCompile("\\]\\]>"),
+		Terminate: true,
+	},
+	{
+		Start:     regexp.MustCompile("(?i)" + "^</?(" + strings.Join(HTML_BLOCKS[:], "|") + ")(?=(\\s|/?>|$))"),
+		End:       regexp.MustCompile("^$"),
+		Terminate: true,
+	},
+	{
+		Start:     regexp.MustCompile(HTML_OPEN_CLOSE_TAG_RE.String() + "\\\\s*$"),
+		End:       regexp.MustCompile("^$"),
+		Terminate: false,
+	},
+}

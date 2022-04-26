@@ -1,6 +1,9 @@
 package types
 
-import . "go-markdown-it/pkg"
+import (
+	. "go-markdown-it/pkg"
+	"regexp"
+)
 
 type PluginMetaData struct {
 	Value string
@@ -65,6 +68,7 @@ type Preset struct {
 }
 
 type Parser struct {
+	Options Options
 }
 
 type StateCore struct {
@@ -73,4 +77,17 @@ type StateCore struct {
 	Tokens     []*Token
 	InlineMode bool
 	Md         Parser
+}
+
+type HtmlSequence struct {
+	Start     *regexp.Regexp
+	End       *regexp.Regexp
+	Terminate bool
+}
+
+type StateInline struct {
+	Src     string
+	Pos     int
+	PosMax  int
+	Pending string
 }

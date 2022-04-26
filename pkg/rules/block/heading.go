@@ -51,17 +51,20 @@ func Heading(state *StateBlock, startLine int, endLine int, silent bool) bool {
 
 	state.Line = startLine + 1
 
+	// Opening Heading
 	token := state.Push("heading_open", "h"+strconv.Itoa(level), 1)
 	token.Markup = "######"[0:level]
 	token.Map = []int{startLine, state.Line}
 
+	//  Contents
 	token = state.Push("inline", "", 0)
 	token.Content = strings.TrimSpace(string([]rune(state.Src)[pos:max]))
 	token.Map = []int{startLine, state.Line}
 	token.Children = []*Token{}
 
+	// Closing Heading
+	token = state.Push("heading_close", "h"+strconv.Itoa(level), -1)
+	token.Markup = "######"[0:level]
+
 	return true
 }
-
-
-
