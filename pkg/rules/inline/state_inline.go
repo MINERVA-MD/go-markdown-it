@@ -8,7 +8,16 @@ import (
 )
 
 type TokenMeta struct {
-	Delimiters []string
+	Delimiters []Delimiter
+}
+
+type Delimiter struct {
+	Marker rune
+	Length int
+	Token  int
+	End    int
+	Open   bool
+	Close  bool
 }
 
 type DelimScan struct {
@@ -28,8 +37,8 @@ type StateInline struct {
 	PendingLevel     int
 	Tokens           []*Token
 	Cache            map[string]string
-	Delimiters       []string
-	PrevDelimiters   [][]string
+	Delimiters       []Delimiter
+	PrevDelimiters   [][]Delimiter
 	Backticks        string
 	BackTicksScanned bool
 	LinkLevel        int
@@ -55,7 +64,7 @@ func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
 		// Opening Tag
 		state.Level++
 		state.PrevDelimiters = append(state.PrevDelimiters, state.Delimiters)
-		state.Delimiters = []string{}
+		state.Delimiters = []Delimiter{}
 		tokenMeta = TokenMeta{Delimiters: state.Delimiters}
 	}
 
