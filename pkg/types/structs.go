@@ -6,7 +6,7 @@ import (
 )
 
 type PluginMetaData struct {
-	Value string
+	Delimiters []string
 }
 
 type Attribute struct {
@@ -83,11 +83,4 @@ type HtmlSequence struct {
 	Start     *regexp.Regexp
 	End       *regexp.Regexp
 	Terminate bool
-}
-
-type StateInline struct {
-	Src     string
-	Pos     int
-	PosMax  int
-	Pending string
 }
