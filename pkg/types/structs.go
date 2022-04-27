@@ -38,8 +38,14 @@ type Rule struct {
 	// TODO: convert ^this tuple to its own type
 }
 
+type Reference struct {
+	Href  string
+	Title string
+}
+
 type Env struct {
-	info string
+	info       string
+	References map[string]Reference
 }
 
 type Options struct {
@@ -65,10 +71,6 @@ type Components struct {
 type Preset struct {
 	Options    Options
 	Components Components
-}
-
-type Parser struct {
-	Options Options
 }
 
 type StateCore struct {
