@@ -95,3 +95,6 @@ var HTML_SEQUENCES = []HtmlSequence{
 		Terminate: false,
 	},
 }
+
+var LINK_OPEN = regexp.MustCompile("(?i)^<a[>\\s]")
+var LINK_CLOSE = regexp.MustCompile("(?i)^<\\/a\\s*>")
