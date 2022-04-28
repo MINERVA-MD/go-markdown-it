@@ -23,6 +23,11 @@ func (p *Parser) ValidateLink(url string) bool {
 	return false
 }
 
+func (p *Parser) NormalizeLinkText(url string) string {
+	// TODO
+	return ""
+}
+
 func (pi *ParserInline) Tokenize(state *StateInline) {
 	// TODO
 }

@@ -104,3 +104,6 @@ var NAMED_RE = regexp.MustCompile("(?i)^&([a-z][a-z0-9]{1,31});")
 
 var NEWLINE_RE = regexp.MustCompile("\n")
 var BACKTICK_RE = regexp.MustCompile("^ (.+) $")
+
+var EMAIL_RE = regexp.MustCompile("^([a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$")
+var AUTOLINK_RE = regexp.MustCompile("^([a-zA-Z][a-zA-Z0-9+.\\-]{1,31}):([^<>\\x00-\\x20]*)$")
