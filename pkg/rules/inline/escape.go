@@ -3,7 +3,6 @@ package inline
 import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
-	. "go-markdown-it/pkg/types"
 )
 
 var ESCAPED = [256]int{}

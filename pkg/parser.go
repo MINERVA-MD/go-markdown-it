@@ -26,3 +26,9 @@ func (p *Parser) ValidateLink(url string) bool {
 func (pi *ParserInline) Tokenize(state *StateInline) {
 	// TODO
 }
+
+func (pi *ParserInline) Parse(content string, md *Parser, Env Env, tokens *[]*Token) string {
+	// TODO
+
+	return ""
+}
