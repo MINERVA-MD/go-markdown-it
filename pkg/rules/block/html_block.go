@@ -4,7 +4,7 @@ import (
 	. "go-markdown-it/pkg/common"
 )
 
-func HtmlBlock(state *StateBlock, startLine int, endLine int, silent bool) bool {
+func (state *StateBlock) HtmlBlock(startLine int, endLine int, silent bool) bool {
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
 

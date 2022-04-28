@@ -1,6 +1,6 @@
 package block
 
-func Code(state *StateBlock, startLine int, endLine int) bool {
+func (state *StateBlock) Code(startLine int, endLine int) bool {
 
 	if state.SCount[startLine]-state.BlkIndent < 4 {
 		return false
