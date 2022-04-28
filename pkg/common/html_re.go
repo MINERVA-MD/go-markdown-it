@@ -101,3 +101,6 @@ var LINK_CLOSE = regexp.MustCompile("(?i)^<\\/a\\s*>")
 
 var DIGITAL_RE = regexp.MustCompile("(?i)^&#((?:x[a-f0-9]{1,6}|[0-9]{1,7}));")
 var NAMED_RE = regexp.MustCompile("(?i)^&([a-z][a-z0-9]{1,31});")
+
+var NEWLINE_RE = regexp.MustCompile("\n")
+var BACKTICK_RE = regexp.MustCompile("^ (.+) $")

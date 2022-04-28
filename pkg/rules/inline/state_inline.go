@@ -39,7 +39,7 @@ type StateInline struct {
 	Cache            map[string]string
 	Delimiters       []Delimiter
 	PrevDelimiters   [][]Delimiter
-	Backticks        string
+	Backticks        []int
 	BackTicksScanned bool
 	LinkLevel        int
 	TokensMeta       []TokenMeta
