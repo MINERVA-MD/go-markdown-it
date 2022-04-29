@@ -13,6 +13,6 @@ func (p *ParserBlock) Init() {
 
 }
 
-func (p *ParserBlock) Tokenize(state *StateBlock, stateLine int, endLine int) {
+func (p *ParserBlock) Tokenize(state *StateBlock, stateLine int, endLine int, silent bool) {
 	// TODO
 }
