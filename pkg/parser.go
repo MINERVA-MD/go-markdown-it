@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	. "go-markdown-it/pkg/parser"
 	. "go-markdown-it/pkg/rules/inline"
 	. "go-markdown-it/pkg/types"
 )
@@ -11,6 +12,7 @@ type Parser struct {
 	Options Options
 	Helpers Helpers
 	Inline  ParserInline
+	Block   ParserBlock
 }
 
 func (p *Parser) NormalizeLink(url string) string {

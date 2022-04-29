@@ -1,6 +1,9 @@
 package parser
 
-import . "go-markdown-it/pkg/rules"
+import (
+	. "go-markdown-it/pkg/rules"
+	. "go-markdown-it/pkg/rules/block"
+)
 
 type ParserBlock struct {
 	Ruler Ruler
@@ -8,4 +11,8 @@ type ParserBlock struct {
 
 func (p *ParserBlock) Init() {
 
+}
+
+func (p *ParserBlock) Tokenize(state *StateBlock, stateLine int, endLine int) {
+	// TODO
 }

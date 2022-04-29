@@ -141,11 +141,11 @@ func (state *StateBlock) SkipSpacesBack(pos int, min int) int {
 	return pos
 }
 
-func (state *StateBlock) SkipChars(pos int, code int) int {
+func (state *StateBlock) SkipChars(pos int, code rune) int {
 	var max = len(state.Src)
 	for ; pos < max; pos++ {
 		ch := CharCodeAt(state.Src, pos)
-		if ch != rune(code) {
+		if ch != code {
 			break
 		}
 	}
