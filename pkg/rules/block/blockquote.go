@@ -279,7 +279,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	lines := []int{startLine, 0}
 	token.Map = []int{startLine, 0}
 
-	state.Md.Block.Tokenize(state, startLine, nextLine)
+	state.Md.Block.Tokenize(state, startLine, nextLine, false)
 
 	token = state.Push("blockquote_close", "blockquote", -1)
 	token.Markup = ">"
