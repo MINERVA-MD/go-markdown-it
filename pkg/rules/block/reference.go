@@ -3,6 +3,7 @@ package block
 import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/types"
+	"strings"
 )
 
 func (state *StateBlock) Reference(startLine int, _endLine int, silent bool) bool {
@@ -78,7 +79,7 @@ func (state *StateBlock) Reference(startLine int, _endLine int, silent bool) boo
 		}
 	}
 
-	str := state.GetLines(startLine, nextLine, state.BlkIndent, false).trim()
+	str := strings.TrimSpace(state.GetLines(startLine, nextLine, state.BlkIndent, false))
 	max = len(str)
 
 	for pos = 1; pos < max; pos++ {
