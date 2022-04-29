@@ -6,3 +6,9 @@ var HTML_REPLACEMENTS = map[string]string{
 	">":  "&gt;",
 	"\"": "&quot;",
 }
+
+var SCOPED_ABBR = map[string]string{
+	"c":  "©",
+	"r":  "®",
+	"tm": "™",
+}

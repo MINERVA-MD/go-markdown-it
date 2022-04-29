@@ -14,6 +14,6 @@ func BlockCore(state *StateCore) {
 
 		state.Tokens = append(state.Tokens, &token)
 	} else {
-		// TODO: state.md.block.parse(state.src, state.md, state.env, state.tokens)
+		state.Md.Block.Parse(state.Src, &state.Md, state.Env, &state.Tokens)
 	}
 }

@@ -2,6 +2,7 @@ package pkg
 
 import (
 	. "go-markdown-it/pkg/parser"
+	. "go-markdown-it/pkg/rules/core"
 	. "go-markdown-it/pkg/rules/inline"
 	. "go-markdown-it/pkg/types"
 )
