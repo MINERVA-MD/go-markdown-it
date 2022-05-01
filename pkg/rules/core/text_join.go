@@ -1,8 +1,11 @@
 package core
 
-import . "go-markdown-it/pkg/Types"
+import (
+	"go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/inline"
+)
 
-func TextJoin(state *StateCore) {
+func TextJoin(state *StateCore, _ *block.StateBlock, _ *inline.StateInline, _ int, _ int, _ bool) bool {
 
 	blockTokens := state.Tokens
 	l := len(blockTokens)
@@ -42,4 +45,6 @@ func TextJoin(state *StateCore) {
 			tokens = tokens[:last]
 		}
 	}
+
+	return true
 }

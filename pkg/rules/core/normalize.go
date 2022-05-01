@@ -2,11 +2,13 @@ package core
 
 import (
 	. "go-markdown-it/pkg/common"
+	. "go-markdown-it/pkg/rules/block"
+	. "go-markdown-it/pkg/rules/inline"
 	. "go-markdown-it/pkg/types"
 	"strings"
 )
 
-func Normalize(state *StateCore) {
+func Normalize(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bool) bool {
 	var src string
 
 	// Normalize newlines
@@ -16,4 +18,6 @@ func Normalize(state *StateCore) {
 	src = strings.Replace(src, "\x00", "\uFFFD", -1)
 
 	state.Src = src
+
+	return true
 }

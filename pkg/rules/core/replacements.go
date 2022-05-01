@@ -4,6 +4,8 @@ import (
 	. "go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/maps"
+	"go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/inline"
 	. "go-markdown-it/pkg/types"
 	"strings"
 )
@@ -72,10 +74,10 @@ func ReplaceRare(inlineTokens []*Token) {
 	}
 }
 
-func Replace(state *StateCore) {
+func Replace(state *StateCore, _ *block.StateBlock, _ *inline.StateInline, _ int, _ int, _ bool) bool {
 
 	if !state.Md.Options.Typography {
-		return
+		return false
 	}
 
 	for blkIdx := len(state.Tokens) - 1; blkIdx >= 0; blkIdx-- {
@@ -91,6 +93,7 @@ func Replace(state *StateCore) {
 		if RARE_RE.MatchString(state.Tokens[blkIdx].Content) {
 			ReplaceRare(state.Tokens[blkIdx].Children)
 		}
-
 	}
+
+	return true
 }

@@ -2,10 +2,11 @@ package core
 
 import (
 	. "go-markdown-it/pkg"
-	. "go-markdown-it/pkg/types"
+	. "go-markdown-it/pkg/rules/block"
+	. "go-markdown-it/pkg/rules/inline"
 )
 
-func BlockCore(state *StateCore) {
+func BlockCore(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bool) bool {
 	if state.InlineMode {
 		var token = GenerateToken("inline", "", 0)
 		token.Content = state.Src
@@ -16,4 +17,5 @@ func BlockCore(state *StateCore) {
 	} else {
 		state.Md.Block.Parse(state.Src, &state.Md, state.Env, &state.Tokens)
 	}
+	return true
 }

@@ -1,9 +1,10 @@
 package types
 
 import (
-	. "go-markdown-it/pkg"
 	. "go-markdown-it/pkg/rules"
 	. "go-markdown-it/pkg/rules/block"
+	. "go-markdown-it/pkg/rules/core"
+	. "go-markdown-it/pkg/rules/inline"
 	"regexp"
 )
 
@@ -16,7 +17,7 @@ type Attribute struct {
 	Value string
 }
 
-type RuleFunction func(*StateBlock, int, int, bool) bool
+type RuleFunction func(*StateCore, *StateBlock, *StateInline, int, int, bool) bool
 type HighlightFn func(string, string, string) string
 type Cache map[string][]RuleFunction
 type Core struct {
@@ -74,14 +75,6 @@ type Components struct {
 type Preset struct {
 	Options    Options
 	Components Components
-}
-
-type StateCore struct {
-	Src        string
-	Env        Env
-	Tokens     []*Token
-	InlineMode bool
-	Md         Parser
 }
 
 type HtmlSequence struct {
