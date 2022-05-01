@@ -1,0 +1,4 @@
+gitlab.com/golang-commonmark/linkify v0.0.0-20200225224916-64bca66f6ad3 h1:1Coh5BsUBlXoEJmIEaNzVAWrtg9k7/eJzailMQr1grw=
+gitlab.com/golang-commonmark/linkify v0.0.0-20200225224916-64bca66f6ad3/go.mod h1:Gn+LZmCrhPECMD3SOKlE+BOHwhOYD9j7WT9NUtkCrC8=
+golang.org/x/text v0.3.7 h1:olpwvP2KacW1ZWvsR7uQhoyTYvKAupfQrRGBFM352Gk=
+golang.org/x/text v0.3.7/go.mod h1:u+2+/6zg+i71rQMx5EYifcz6MCKuco9NR6JIITiCfzQ=

@@ -124,3 +124,6 @@ var SCOPED_ABBR_RE = regexp.MustCompile("(?i)\\((c|tm|r)\\)")
 var QUOTE_TEST_RE = regexp.MustCompile("['\"]")
 var QUOTE_RE = regexp.MustCompile("['\"]")
 var APOSTROPHE = regexp.MustCompile("'\\u2019")
+
+var HTTP_RE = regexp.MustCompile("^http:\\/\\/")
+var MAILTO_RE = regexp.MustCompile("(?i)^mailto:")

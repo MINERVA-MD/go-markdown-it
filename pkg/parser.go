@@ -2,15 +2,15 @@ package pkg
 
 import (
 	. "go-markdown-it/pkg/parser"
-	. "go-markdown-it/pkg/rules/core"
 	. "go-markdown-it/pkg/rules/inline"
-	. "go-markdown-it/pkg/types"
+	"go-markdown-it/pkg/types"
 )
 
 type ParserInline struct{}
 
 type Parser struct {
-	Options Options
+	Linkify Linkify
+	Options types.Options
 	Helpers Helpers
 	Inline  ParserInline
 	Block   ParserBlock
@@ -35,7 +35,7 @@ func (pi *ParserInline) Tokenize(state *StateInline) {
 	// TODO
 }
 
-func (pi *ParserInline) Parse(content string, md *Parser, Env Env, tokens *[]*Token) string {
+func (pi *ParserInline) Parse(content string, md *Parser, Env types.Env, tokens *[]*Token) string {
 	// TODO
 
 	return ""
