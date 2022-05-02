@@ -3,6 +3,8 @@ package block
 import (
 	. "go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
 	. "go-markdown-it/pkg/types"
 	"strings"
 )
@@ -47,6 +49,17 @@ func (state *StateBlock) EscapedSplit(str string) []string {
 	result = append(result, current+str[lastPos:])
 
 	return result
+}
+
+func Table(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.Table(startLine, endLine, silent)
 }
 
 func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
@@ -220,7 +233,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 		terminate := false
 		l := len(terminatorRules)
 		for i := 0; i < l; i++ {
-			if terminatorRules[i](state, nextLine, endLine, true) {
+			if terminatorRules[i](nil, state, nil, nextLine, endLine, true) {
 				terminate = true
 				break
 			}
@@ -254,7 +267,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 		token.Map = []int{nextLine, nextLine + 1}
 
 		for i := 0; i < columnCount; i++ {
-			token = state.Push("td_open", "td", 1);
+			token = state.Push("td_open", "td", 1)
 			if len(aligns[i]) > 0 {
 				token.Attrs = []Attribute{
 					{
@@ -264,7 +277,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 				}
 			}
 
-			token = state.Push("inline", "", 0);
+			token = state.Push("inline", "", 0)
 
 			if len(columns[i]) > 0 {
 				token.Content = strings.TrimSpace(columns[i])
@@ -274,9 +287,9 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 			token.Children = []*Token{}
 
-			token = state.Push("td_close", "td", -1);
+			token = state.Push("td_close", "td", -1)
 		}
-		token = state.Push("tr_close", "tr", -1);
+		token = state.Push("tr_close", "tr", -1)
 	}
 
 	if tbodyLines != nil && len(tbodyLines) > 0 {

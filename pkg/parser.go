@@ -13,7 +13,7 @@ type Parser struct {
 	Options types.Options
 	Helpers Helpers
 	Inline  ParserInline
-	Block   ParserBlock
+	Block   Block
 }
 
 func (p *Parser) NormalizeLink(url string) string {

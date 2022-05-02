@@ -1,5 +1,22 @@
 package inline
 
+import (
+	"go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
+)
+
+func FragmentsJoin(
+	_ *core.StateCore,
+	_ *block.StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	_ bool,
+) bool {
+	state.FragmentsJoin()
+	return true
+}
+
 // Clean up tokens after emphasis and strikethrough postprocessing:
 // merge adjacent text nodes into one and re-calculate all token levels
 //

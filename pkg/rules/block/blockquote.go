@@ -1,6 +1,21 @@
 package block
 
-import . "go-markdown-it/pkg/common"
+import (
+	. "go-markdown-it/pkg/common"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
+)
+
+func BlockQuote(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.BlockQuote(startLine, endLine, silent)
+}
 
 func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) bool {
 
@@ -233,7 +248,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 		terminate = false
 		l := len(terminatorRules)
 		for i := 0; i < l; i++ {
-			if terminatorRules[i](state, nextLine, endLine, true) {
+			if terminatorRules[i](nil, state, nil, nextLine, endLine, true) {
 				terminate = true
 				break
 			}

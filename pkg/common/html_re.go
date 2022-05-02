@@ -127,3 +127,6 @@ var APOSTROPHE = regexp.MustCompile("'\\u2019")
 
 var HTTP_RE = regexp.MustCompile("^http:\\/\\/")
 var MAILTO_RE = regexp.MustCompile("(?i)^mailto:")
+
+var SCHEME_RE = regexp.MustCompile("(?i)(?:^|[^a-z0-9.+-])([a-z][a-z0-9.+-]*)$")
+var LINKIFY_CONFLICT_RE = regexp.MustCompile("\\*+$")

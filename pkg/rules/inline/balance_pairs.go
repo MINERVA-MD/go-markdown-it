@@ -1,5 +1,22 @@
 package inline
 
+import (
+	"go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
+)
+
+func BalancePairs(
+	_ *core.StateCore,
+	_ *block.StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	_ bool,
+) bool {
+	state.LinkPairs()
+	return true
+}
+
 func (state *StateInline) ProcessDelimiters(delimiters []Delimiter) {
 
 	max := len(delimiters)
@@ -144,5 +161,3 @@ func (state *StateInline) LinkPairs() {
 		}
 	}
 }
-
-

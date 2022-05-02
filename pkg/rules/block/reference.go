@@ -2,11 +2,24 @@ package block
 
 import (
 	. "go-markdown-it/pkg/common"
-	. "go-markdown-it/pkg/types"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
+	"go-markdown-it/pkg/types"
 	"strings"
 )
 
-func (state *StateBlock) Reference(startLine int, _endLine int, silent bool) bool {
+func Reference(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.Reference(startLine, endLine, silent)
+}
+
+func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 
 	lines := 0
 	var endLine int
@@ -69,7 +82,7 @@ func (state *StateBlock) Reference(startLine int, _endLine int, silent bool) boo
 		terminate = false
 		l := len(terminatorRules)
 		for i := 0; i < l; i++ {
-			if terminatorRules[i](state, nextLine, endLine, true) {
+			if terminatorRules[i](nil, state, nil, nextLine, endLine, true) {
 				terminate = true
 				break
 			}
@@ -200,17 +213,17 @@ func (state *StateBlock) Reference(startLine int, _endLine int, silent bool) boo
 		return false
 	}
 
-	// Reference can not terminate anything. This check is for safety only.
+	// LinkReference can not terminate anything. This check is for safety only.
 	if silent {
 		return true
 	}
 
 	if state.Env.References == nil {
-		state.Env.References = map[string]Reference{}
+		state.Env.References = map[string]types.LinkReference{}
 	}
 
 	if _, ok := state.Env.References[label]; !ok {
-		state.Env.References[label] = Reference{
+		state.Env.References[label] = types.LinkReference{
 			Href:  href,
 			Title: title,
 		}

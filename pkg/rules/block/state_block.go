@@ -27,7 +27,33 @@ type StateBlock struct {
 	Result     string
 }
 
-func (state *StateBlock) Init() {
+func StateBlockInit() *StateBlock {
+	state := StateBlock{
+		Src:        "",
+		Md:         Parser{},
+		Env:        Env{},
+		Tokens:     nil,
+		BMarks:     nil,
+		EMarks:     nil,
+		TShift:     nil,
+		SCount:     nil,
+		BsCount:    nil,
+		BlkIndent:  0,
+		Line:       0,
+		LineMax:    0,
+		Tight:      false,
+		DDIndent:   0,
+		ListIndent: 0,
+		ParentType: "",
+		Level:      0,
+		Result:     "",
+	}
+
+	return &state
+}
+
+func (state *StateBlock) StateBlock() {
+	// TODO
 	var s = state.Src
 	var start = 0
 	var pos = 0

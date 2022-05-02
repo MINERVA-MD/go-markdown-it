@@ -2,7 +2,7 @@ package inline
 
 import (
 	. "go-markdown-it/pkg/rules/block"
-	. "go-markdown-it/pkg/types"
+	"go-markdown-it/pkg/rules/core"
 )
 
 func IsTerminatorChar(ch rune) bool {
@@ -58,7 +58,14 @@ func IsTerminatorChar(ch rune) bool {
 	}
 }
 
-func Text(state *StateInline, silent bool) bool {
+func Text(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
 	var pos = state.Pos
 
 	for pos < state.PosMax && !IsTerminatorChar(CharCodeAt(state.Src, pos)) {

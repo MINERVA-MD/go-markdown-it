@@ -2,8 +2,21 @@ package block
 
 import (
 	. "go-markdown-it/pkg/common"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
 	"strings"
 )
+
+func Hr(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.Hr(startLine, endLine, silent)
+}
 
 func (state *StateBlock) Hr(startLine int, endLine int, silent bool) bool {
 

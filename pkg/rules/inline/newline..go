@@ -3,7 +3,19 @@ package inline
 import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 )
+
+func Newline(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.Newline(silent)
+}
 
 func (state *StateInline) Newline(silent bool) bool {
 	pos := state.Pos

@@ -1,5 +1,21 @@
 package block
 
+import (
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
+)
+
+func Code(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	_ bool,
+) bool {
+	return state.Code(startLine, endLine)
+}
+
 func (state *StateBlock) Code(startLine int, endLine int) bool {
 
 	if state.SCount[startLine]-state.BlkIndent < 4 {

@@ -2,14 +2,26 @@ package inline
 
 import (
 	. "go-markdown-it/pkg/common"
-	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 	. "go-markdown-it/pkg/types"
 )
+
+func AutoLink(
+	_ *core.StateCore,
+	_ *block.StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.AutoLink(silent)
+}
 
 func (state *StateInline) AutoLink(silent bool) bool {
 	pos := state.Pos
 
-	if CharCodeAt(state.Src, pos) != 0x3C {
+	if block.CharCodeAt(state.Src, pos) != 0x3C {
 		return false
 	}
 
@@ -22,7 +34,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 			return false
 		}
 
-		ch := CharCodeAt(state.Src, pos)
+		ch := block.CharCodeAt(state.Src, pos)
 
 		if ch == 0x3C /* < */ {
 			return false

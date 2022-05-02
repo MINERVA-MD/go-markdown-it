@@ -1,6 +1,9 @@
 package inline
 
-import . "go-markdown-it/pkg/rules/block"
+import (
+	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
+)
 
 func (state *StateInline) Tokenize(silent bool) bool {
 
@@ -103,6 +106,29 @@ func (state *StateInline) PostProcess(delimiters []Delimiter) {
 			state.Tokens[i] = token
 		}
 	}
+}
+
+func Strikethrough(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.Tokenize(silent)
+}
+
+func SPostProcess(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	_ bool,
+) bool {
+	state.Strikethrough()
+	return true
 }
 
 func (state *StateInline) Strikethrough() {

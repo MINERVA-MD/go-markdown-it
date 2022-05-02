@@ -3,6 +3,8 @@ package block
 import (
 	. "go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
 	. "go-markdown-it/pkg/types"
 	"strconv"
 )
@@ -105,6 +107,17 @@ func (state *StateBlock) MarkTightParagraphs(idx int) {
 			i += 2
 		}
 	}
+}
+
+func List(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.List(startLine, endLine, silent)
 }
 
 func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
@@ -351,7 +364,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 		terminate = false
 		l := len(terminatorRules)
 		for i := 0; i < l; i++ {
-			if terminatorRules[i](state, nextLine, endLine, true) {
+			if terminatorRules[i](nil, state, nil, nextLine, endLine, true) {
 				terminate = true
 				break
 			}

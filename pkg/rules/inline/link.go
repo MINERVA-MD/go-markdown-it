@@ -1,11 +1,23 @@
 package inline
 
 import (
-	. "go-markdown-it/pkg"
+	"go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 	. "go-markdown-it/pkg/types"
 )
+
+func Link(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.Link(silent)
+}
 
 func (state *StateInline) Link(silent bool) bool {
 
@@ -17,7 +29,7 @@ func (state *StateInline) Link(silent bool) bool {
 	oldPos := state.Pos
 	max := state.PosMax
 	parseReference := true
-	var res LinkResult
+	var res pkg.LinkResult
 
 	if CharCodeAt(state.Src, state.Pos) != 0x5B /* [ */ {
 		return false

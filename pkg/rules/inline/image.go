@@ -1,11 +1,23 @@
 package inline
 
 import (
-	. "go-markdown-it/pkg"
+	"go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 	. "go-markdown-it/pkg/types"
 )
+
+func Image(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.Image(silent)
+}
 
 func (state *StateInline) Image(silent bool) bool {
 
@@ -16,7 +28,7 @@ func (state *StateInline) Image(silent bool) bool {
 	start := state.Pos
 	oldPos := state.Pos
 	max := state.PosMax
-	var res LinkResult
+	var res pkg.LinkResult
 
 	if CharCodeAt(state.Src, state.Pos) != 0x21 /* ! */ {
 		return false
@@ -142,7 +154,7 @@ func (state *StateInline) Image(silent bool) bool {
 
 		content := state.Src[labelStart:labelEnd]
 
-		var tokens []*Token
+		var tokens []*pkg.Token
 		state.Md.Inline.Parse(content, &state.Md, state.Env, &tokens)
 
 		token := state.Push("image", "img", 0)

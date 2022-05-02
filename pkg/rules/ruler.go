@@ -125,7 +125,8 @@ func (ruler *Ruler) Insert(idx int, options Rule, ruleName string, fn RuleFuncti
 func (ruler *Ruler) Push(
 	ruleName string,
 	fn RuleFunction,
-	options Rule) {
+	options Rule,
+) {
 
 	var alt []string
 	if options.Alt != nil {

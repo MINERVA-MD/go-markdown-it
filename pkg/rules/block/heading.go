@@ -3,11 +3,24 @@ package block
 import (
 	. "go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
 	"strconv"
 	"strings"
 )
 
-func (state *StateBlock) Heading(startLine int, endLine int, silent bool) bool {
+func Heading(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.Heading(startLine, endLine, silent)
+}
+
+func (state *StateBlock) Heading(startLine int, _ int, silent bool) bool {
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
 

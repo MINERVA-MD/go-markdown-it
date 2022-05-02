@@ -4,7 +4,6 @@ import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
 	. "go-markdown-it/pkg/rules/inline"
-	. "go-markdown-it/pkg/types"
 	"strings"
 )
 

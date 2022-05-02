@@ -3,6 +3,7 @@ package inline
 import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 )
 
 func IsLinkOpen(str string) bool {
@@ -16,6 +17,17 @@ func IsLinkClose(str string) bool {
 func IsLetter(ch rune) bool {
 	var lc = ch | 0x20 // to lowercase
 	return (lc >= 0x61 /* a */) && (lc <= 0x7a /* z */)
+}
+
+func HtmlInline(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.HtmlInline(silent)
 }
 
 func (state *StateInline) HtmlInline(silent bool) bool {

@@ -1,6 +1,21 @@
 package block
 
-import "strings"
+import (
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
+	"strings"
+)
+
+func Fence(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	silent bool,
+) bool {
+	return state.Fence(startLine, endLine, silent)
+}
 
 func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 	var mem int

@@ -2,8 +2,21 @@ package block
 
 import (
 	. "go-markdown-it/pkg"
+	"go-markdown-it/pkg/rules/core"
+	"go-markdown-it/pkg/rules/inline"
 	"strings"
 )
+
+func LHeading(
+	_ *core.StateCore,
+	state *StateBlock,
+	_ *inline.StateInline,
+	startLine int,
+	endLine int,
+	_ bool,
+) bool {
+	return state.LHeading(startLine, endLine)
+}
 
 func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 
@@ -68,7 +81,7 @@ func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 		terminate = false
 		l := len(terminatorRules)
 		for i := 0; i < l; i++ {
-			if terminatorRules[i](state, nextLine, endLine, true) {
+			if terminatorRules[i](nil, state, nil, nextLine, endLine, true) {
 				terminate = true
 				break
 			}

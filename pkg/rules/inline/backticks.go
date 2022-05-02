@@ -3,10 +3,22 @@ package inline
 import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 	"strings"
 )
 
-func (state *StateInline) BackLinks(silent bool) bool {
+func Backtick(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.Backtick(silent)
+}
+
+func (state *StateInline) Backtick(silent bool) bool {
 	pos := state.Pos
 	ch := CharCodeAt(state.Src, pos)
 

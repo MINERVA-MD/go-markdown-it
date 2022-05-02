@@ -3,6 +3,7 @@ package inline
 import (
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
+	"go-markdown-it/pkg/rules/core"
 )
 
 var ESCAPED = [256]int{}
@@ -15,7 +16,14 @@ func InitEscapedChars() {
 	}
 }
 
-func Escape(state *StateInline, silent bool) bool {
+func Escape(
+	_ *core.StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
 	pos := state.Pos
 	max := state.PosMax
 

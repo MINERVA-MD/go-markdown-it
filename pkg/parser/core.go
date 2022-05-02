@@ -10,7 +10,7 @@ type Core struct {
 	Ruler Ruler
 }
 
-var rules = map[string]types.RuleFunction{
+var c_rules = map[string]types.RuleFunction{
 	"normalize":    Normalize,
 	"block":        BlockCore,
 	"inline":       InlineCore,
@@ -25,20 +25,20 @@ func (c *Core) Core() {
 		Cache: nil,
 	}
 
-	for k, v := range rules {
+	for k, v := range c_rules {
 		c.Ruler.Push(k, v, types.Rule{
-			Name:    "",
+			Name:    k,
 			Enabled: false,
-			Fn:      nil,
+			Fn:      v,
 			Alt:     nil,
 		})
 	}
 }
 
 func (c *Core) Process(state *StateCore) {
-	rules := c.Ruler.GetRules("")
+	_rules := c.Ruler.GetRules("")
 
-	for _, rule := range rules {
+	for _, rule := range _rules {
 		rule(state, nil, nil, 0, 0, false)
 	}
 }

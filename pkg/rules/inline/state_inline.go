@@ -1,7 +1,7 @@
 package inline
 
 import (
-	. "go-markdown-it/pkg"
+	"go-markdown-it/pkg"
 	. "go-markdown-it/pkg/common"
 	. "go-markdown-it/pkg/rules/block"
 	. "go-markdown-it/pkg/types"
@@ -28,14 +28,14 @@ type DelimScan struct {
 
 type StateInline struct {
 	Src              string
-	Md               Parser
+	Md               pkg.Parser
 	Env              Env
 	Pos              int
 	PosMax           int
 	Pending          string
 	Level            int
 	PendingLevel     int
-	Tokens           []*Token
+	Tokens           []*pkg.Token
 	Cache            map[string]string
 	Delimiters       []Delimiter
 	PrevDelimiters   [][]Delimiter
@@ -45,12 +45,12 @@ type StateInline struct {
 	TokensMeta       []TokenMeta
 }
 
-func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
+func (state *StateInline) Push(_type string, tag string, nesting int) *pkg.Token {
 	if len(state.Pending) > 0 {
 		state.PushPending()
 	}
 
-	token := GenerateToken(_type, tag, nesting)
+	token := pkg.GenerateToken(_type, tag, nesting)
 
 	if nesting < 0 {
 		state.Level--
@@ -75,8 +75,8 @@ func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
 	return &token
 }
 
-func (state *StateInline) PushPending() *Token {
-	token := GenerateToken("text", "", 0)
+func (state *StateInline) PushPending() *pkg.Token {
+	token := pkg.GenerateToken("text", "", 0)
 
 	token.Content = state.Pending
 	token.Level = state.PendingLevel
