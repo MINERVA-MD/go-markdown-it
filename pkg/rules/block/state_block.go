@@ -52,7 +52,7 @@ func StateBlockInit() *StateBlock {
 	return &state
 }
 
-func (state *StateBlock) StateBlock() {
+func (state *StateBlock) StateBlock(src string, md *MarkdownIt, end Env, outTokens []*Token) {
 	// TODO
 	var s = state.Src
 	var start = 0
@@ -200,7 +200,7 @@ func (state *StateBlock) GetLines(begin int, end int, indent int, keepLastLF boo
 	return ""
 }
 
-// CharCodeAt This is O(n) consider replacing this for optimization sake
+// CharCodeAt This is O(n) consider replacing this for optimization’s sake
 func CharCodeAt(s string, n int) rune {
 	i := 0
 	for _, r := range s {

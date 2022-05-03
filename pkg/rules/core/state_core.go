@@ -1,22 +1,22 @@
 package core
 
 import (
-	. "go-markdown-it/pkg"
+	"go-markdown-it/pkg"
 	. "go-markdown-it/pkg/types"
 )
 
 type StateCore struct {
 	Src        string
 	Env        Env
-	Tokens     []*Token
+	Tokens     []*pkg.Token
 	InlineMode bool
-	Md         Parser
+	Md         pkg.MarkdownIt
 }
 
-func (sc *StateCore) StateCore(src string, md *Parser, env Env) {
+func (sc *StateCore) StateCore(src string, md *pkg.MarkdownIt, env Env) {
 	sc.Src = src
 	sc.Env = env
-	sc.Tokens = []*Token{}
+	sc.Tokens = []*pkg.Token{}
 	sc.InlineMode = false
 	sc.Md = *md
 }

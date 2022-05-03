@@ -36,13 +36,17 @@ type StateInline struct {
 	Level            int
 	PendingLevel     int
 	Tokens           []*pkg.Token
-	Cache            map[string]string
+	Cache            map[int]int
 	Delimiters       []Delimiter
 	PrevDelimiters   [][]Delimiter
 	Backticks        []int
 	BackTicksScanned bool
 	LinkLevel        int
 	TokensMeta       []TokenMeta
+}
+
+func (state *StateInline) StateInline(src string, md *pkg.MarkdownIt, end Env, outTokens []*pkg.Token) {
+	// TODO
 }
 
 func (state *StateInline) Push(_type string, tag string, nesting int) *pkg.Token {

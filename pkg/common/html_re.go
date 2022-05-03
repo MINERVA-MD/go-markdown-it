@@ -130,3 +130,6 @@ var MAILTO_RE = regexp.MustCompile("(?i)^mailto:")
 
 var SCHEME_RE = regexp.MustCompile("(?i)(?:^|[^a-z0-9.+-])([a-z][a-z0-9.+-]*)$")
 var LINKIFY_CONFLICT_RE = regexp.MustCompile("\\*+$")
+
+var BAD_PROTO_RE = regexp.MustCompile("^(vbscript|javascript|file|data):")
+var GOOD_DATA_RE = regexp.MustCompile("^data:image\\/(gif|png|jpeg|webp);")

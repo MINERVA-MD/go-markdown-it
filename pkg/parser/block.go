@@ -1,7 +1,7 @@
 package parser
 
 import (
-	. "go-markdown-it/pkg"
+	"go-markdown-it/pkg"
 	. "go-markdown-it/pkg/rules"
 	. "go-markdown-it/pkg/rules/block"
 	"go-markdown-it/pkg/types"
@@ -76,11 +76,11 @@ var b_rules = map[string]types.Rule{
 	},
 }
 
-type Block struct {
+type ParserBlock struct {
 	Ruler Ruler
 }
 
-func (b *Block) ParserBlock() {
+func (b *ParserBlock) ParserBlock() {
 	b.Ruler = Ruler{
 		Rules: []types.Rule{},
 		Cache: nil,
@@ -91,7 +91,7 @@ func (b *Block) ParserBlock() {
 	}
 }
 
-func (b *Block) Tokenize(state *StateBlock, startLine int, endLine int, silent bool) {
+func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, silent bool) {
 	var ok bool
 	rules := b.Ruler.GetRules("")
 	_len := len(rules)
@@ -152,12 +152,13 @@ func (b *Block) Tokenize(state *StateBlock, startLine int, endLine int, silent b
 	}
 }
 
-func (b *Block) Parse(str string, md *Parser, env types.Env, outTokens []*Token) {
-	if len(str) == 0 {
+func (b *ParserBlock) Parse(src string, md *pkg.MarkdownIt, env types.Env, outTokens []*pkg.Token) {
+	if len(src) == 0 {
 		return
 	}
 
-	// TODO
-	state := StateBlockInit()
+	state := &StateBlock{}
+	state.StateBlock(src, md, env, outTokens)
+
 	b.Tokenize(state, state.Line, state.LineMax, false)
 }

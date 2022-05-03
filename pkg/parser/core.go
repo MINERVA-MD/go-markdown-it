@@ -6,7 +6,7 @@ import (
 	"go-markdown-it/pkg/types"
 )
 
-type Core struct {
+type ParserCore struct {
 	Ruler Ruler
 }
 
@@ -19,7 +19,7 @@ var c_rules = map[string]types.RuleFunction{
 	"text_join":    TextJoin,
 }
 
-func (c *Core) Core() {
+func (c *ParserCore) Core() {
 	c.Ruler = Ruler{
 		Rules: []types.Rule{},
 		Cache: nil,
@@ -35,7 +35,7 @@ func (c *Core) Core() {
 	}
 }
 
-func (c *Core) Process(state *StateCore) {
+func (c *ParserCore) Process(state *StateCore) {
 	_rules := c.Ruler.GetRules("")
 
 	for _, rule := range _rules {
