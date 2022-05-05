@@ -1,8 +1,7 @@
 package pkg
 
 import (
-	. "go-markdown-it/pkg/common"
-	. "go-markdown-it/pkg/types"
+	"fmt"
 	"strings"
 )
 
@@ -117,10 +116,13 @@ func (r *Renderer) Render(tokens []*Token, options Options, env Env) string {
 
 	for idx, token := range tokens {
 		if token.Type == "inline" {
+			fmt.Println("Attempting to render Inline token " + token.Content)
 			result += r.RenderInline(token.Children, options, env)
 		} else if r.Rules.IsRuleTypeValid(token.Type) {
+			fmt.Println("Attempting to render rule: " + token.Type)
 			result += r.RenderRule(token.Type, tokens, idx, options, env)
 		} else {
+			fmt.Println("Attempting to render token: " + token.Type)
 			result += r.RenderToken(tokens, idx, options)
 		}
 	}
@@ -200,7 +202,7 @@ func (rules Rules) Image(tokens []*Token, idx int, options Options, env Env, ren
 	return renderer.RenderToken(tokens, idx, options)
 }
 
-func (rules Rules) Fence(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
+func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, renderer *Renderer) string {
 
 	var info string
 	var arr []string
@@ -271,7 +273,7 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, env Env, ren
 		"</code></pre>\n"
 }
 
-func (rules Rules) CodeBlock(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
+func (rules Rules) CodeBlock(tokens []*Token, idx int, _ Options, _ Env, renderer *Renderer) string {
 	var token = tokens[idx]
 
 	return "<pre" + renderer.RenderAttrs(token) + "><code>" +
@@ -279,7 +281,7 @@ func (rules Rules) CodeBlock(tokens []*Token, idx int, options Options, env Env,
 		"</code></pre>\n"
 }
 
-func (rules Rules) CodeInline(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
+func (rules Rules) CodeInline(tokens []*Token, idx int, _ Options, _ Env, renderer *Renderer) string {
 	var token = tokens[idx]
 
 	return "<code" + renderer.RenderAttrs(token) + ">" +

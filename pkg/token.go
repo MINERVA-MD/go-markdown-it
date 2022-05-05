@@ -1,6 +1,13 @@
 package pkg
 
-import . "go-markdown-it/pkg/types"
+type Attribute struct {
+	Name  string
+	Value string
+}
+
+type PluginMetaData struct {
+	Delimiters []string
+}
 
 type Token struct {
 	// Type of the token (string, e.g. "paragraph_open")
@@ -111,7 +118,7 @@ func (t *Token) AttrGet(name string) string {
 // AttrJoin joins attribute.Value to existing attribute via space.
 // Or create new attribute if not exists.
 func (t *Token) AttrJoin(attribute Attribute) {
-	var idx int = t.AttrIndex(attribute.Name)
+	var idx = t.AttrIndex(attribute.Name)
 
 	if idx < 0 {
 		t.Attrs = append(t.Attrs, attribute)
