@@ -4,13 +4,43 @@ type ParserCore struct {
 	Ruler Ruler
 }
 
-var c_rules = map[string]RuleFunction{
-	"normalize":    Normalize,
-	"block":        BlockCore,
-	"inline":       InlineCore,
-	"replacements": Replace,
-	"smartquotes":  Smartquotes,
-	"text_join":    TextJoin,
+var cRules = []Rule{
+	{
+		Name:    "normalize",
+		Enabled: false,
+		Fn:      Normalize,
+		Alt:     []string{},
+	},
+	{
+		Name:    "block",
+		Enabled: false,
+		Fn:      BlockCore,
+		Alt:     []string{},
+	},
+	{
+		Name:    "inline",
+		Enabled: false,
+		Fn:      InlineCore,
+		Alt:     []string{},
+	},
+	{
+		Name:    "replacements",
+		Enabled: false,
+		Fn:      Replace,
+		Alt:     []string{},
+	},
+	{
+		Name:    "smartquotes",
+		Enabled: false,
+		Fn:      Smartquotes,
+		Alt:     []string{},
+	},
+	{
+		Name:    "text_join",
+		Enabled: false,
+		Fn:      TextJoin,
+		Alt:     []string{},
+	},
 }
 
 func (c *ParserCore) ParserCore() {
@@ -19,20 +49,15 @@ func (c *ParserCore) ParserCore() {
 		Cache: nil,
 	}
 
-	for k, v := range c_rules {
-		c.Ruler.Push(k, v, Rule{
-			Name:    k,
-			Enabled: false,
-			Fn:      v,
-			Alt:     nil,
-		})
+	for _, rule := range cRules {
+		c.Ruler.Push(rule.Name, rule.Fn, rule)
 	}
 }
 
 func (c *ParserCore) Process(state *StateCore) {
-	_rules := c.Ruler.GetRules("")
+	rules := c.Ruler.GetRules("")
 
-	for idx := 0; idx < len(_rules); idx++ {
-		_rules[idx](state, nil, nil, 0, 0, false)
+	for idx := 0; idx < len(rules); idx++ {
+		rules[idx](state, nil, nil, 0, 0, false)
 	}
 }

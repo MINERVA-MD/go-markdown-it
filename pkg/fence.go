@@ -26,7 +26,7 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
 
-	// if it"s indented more than 3 spaces, it should be a code block
+	// if it's indented more than 3 spaces, it should be a code block
 	if state.SCount[startLine]-state.BlkIndent >= 4 {
 		return false
 	}

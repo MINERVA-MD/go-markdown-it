@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"strings"
+	"unicode/utf8"
 )
 
 type StateBlock struct {
@@ -86,11 +87,12 @@ func (state *StateBlock) StateBlock(src string, md *MarkdownIt, env Env, outToke
 	var offset = 0
 
 	var s = state.Src
-	var n = len(s)
+	var n = utf8.RuneCountInString(s)
 
 	var indentFound = false
 
 	for ; pos < n; pos++ {
+
 		ch := CharCodeAt(s, pos)
 
 		if !indentFound {

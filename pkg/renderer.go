@@ -10,6 +10,7 @@ type Renderer struct {
 	Rules Rules
 }
 
+//Running Text
 func (r *Renderer) RenderAttrs(token *Token) string {
 	var result = ""
 
@@ -233,6 +234,8 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 		} else {
 			highlighted = EscapeHtml(token.Content)
 		}
+	} else {
+		highlighted = EscapeHtml(token.Content)
 	}
 
 	if strings.Index(highlighted, "<pre") == 0 {
@@ -267,6 +270,7 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 			highlighted +
 			"</code></pre>\n"
 	}
+	fmt.Println("Contents 2: " + renderer.RenderAttrs(token) + "|" + token.Content)
 
 	return "<pre><code" + renderer.RenderAttrs(token) + ">" +
 		highlighted +

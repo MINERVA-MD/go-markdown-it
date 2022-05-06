@@ -1,5 +1,7 @@
 package pkg
 
+import "fmt"
+
 var b_rules = []Rule{
 	{
 		Name:    "table",
@@ -91,6 +93,8 @@ func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, si
 	line := startLine
 	hasEmptyLines := false
 	maxNesting := state.Md.Options.MaxNesting
+
+	fmt.Println(hasEmptyLines, maxNesting, startLine, endLine)
 
 	for line < endLine {
 		state.Line = state.SkipEmptyLines(line)

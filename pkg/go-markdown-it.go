@@ -126,9 +126,6 @@ func (md *MarkdownIt) MarkdownIt(presetName string, options Options) error {
 	// at least pass in some default settings
 	md.Set(options)
 
-	// TODO: Try setting default options?
-	md.Options = Options{}
-
 	if md.Options.MaxNesting == 0 {
 		md.Options.MaxNesting = 100
 	}
@@ -241,6 +238,7 @@ func (md *MarkdownIt) Parse(src string, env Env) []*Token {
 	state.StateCore(src, md, env)
 
 	md.Core.Process(state)
+	//utils.PrettyPrint(state.Tokens)
 
 	return state.Tokens
 }

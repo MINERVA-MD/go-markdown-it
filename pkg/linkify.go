@@ -1,6 +1,9 @@
 package pkg
 
-import "gitlab.com/golang-commonmark/linkify"
+import (
+	"fmt"
+	"gitlab.com/golang-commonmark/linkify"
+)
 
 type Linkify struct{}
 
@@ -97,7 +100,14 @@ func (state *StateInline) Linkify(silent bool) bool {
 	return true
 }
 
-func ILinkify(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bool) bool {
+func ILinkify(
+	_ *StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	_ bool,
+) bool {
 
 	var pos int
 	var level int
@@ -112,20 +122,23 @@ func ILinkify(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ b
 	var tokens []*Token
 	var links []linkify.Link
 	var currentToken *Token
+
+	fmt.Println(state == nil)
+
 	blockTokens := state.Tokens
 
 	if !state.Md.Options.Linkify {
 		return false
 	}
 
-	l := len(blockTokens)
+	l := len(*blockTokens)
 	for j := 0; j < l; j++ {
-		if blockTokens[j].Type != "inline" ||
-			!state.Md.Linkify.Pretest(blockTokens[j].Content) {
+		if (*blockTokens)[j].Type != "inline" ||
+			!state.Md.Linkify.Pretest((*blockTokens)[j].Content) {
 			continue
 		}
 
-		tokens = blockTokens[j].Children
+		tokens = (*blockTokens)[j].Children
 
 		htmlLinkLevel = 0
 
@@ -246,7 +259,7 @@ func ILinkify(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ b
 				}
 
 				tokens = InsertTokensAt(tokens, i, nodes)
-				blockTokens[j].Children = tokens
+				(*blockTokens)[j].Children = tokens
 			}
 		}
 	}

@@ -25,8 +25,6 @@ func (state *StateBlock) Code(startLine int, endLine int) bool {
 	nextLine := last
 
 	for nextLine < endLine {
-		fmt.Println(nextLine)
-		fmt.Println(endLine)
 		if state.IsEmpty(nextLine) {
 			nextLine++
 			continue

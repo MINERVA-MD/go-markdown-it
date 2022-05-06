@@ -1,7 +1,5 @@
 package pkg
 
-import "fmt"
-
 func IsTerminatorChar(ch rune) bool {
 	switch ch {
 	case 0x0A /* \n */ :
@@ -63,7 +61,7 @@ func Text(
 	_ int,
 	silent bool,
 ) bool {
-	fmt.Println("Running Text")
+	//fmt.Println("Running Text")
 	var pos = state.Pos
 
 	for pos < state.PosMax && !IsTerminatorChar(CharCodeAt(state.Src, pos)) {
