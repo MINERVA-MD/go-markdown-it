@@ -74,6 +74,6 @@ func TestForceHardBreaks(t *testing.T) {
 	// TODO: Implement md.set() properly
 	assert.Equal(t, "<p>a<br>\nb</p>\n", md.Render("a\nb", pkg.Env{}))
 
-	_ = md.MarkdownIt("default", pkg.Options{Breaks: true, XhtmlOut: true})
+	//_ = md.MarkdownIt("default", pkg.Options{Breaks: true, XhtmlOut: true})
 	assert.Equal(t, "<p>a<br />\nb</p>\n", md.Render("a\nb", pkg.Env{}))
 }
