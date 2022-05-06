@@ -170,6 +170,7 @@ func (md *MarkdownIt) Configure(presetName string) error {
 }
 
 func (md *MarkdownIt) Set(options Options) {
+	// TODO: Implement properly
 	md.Options = options
 }
 

@@ -40,9 +40,40 @@ func TestCode(t *testing.T) {
 
 func TestCustomHighlight(t *testing.T) {
 	var md = &pkg.MarkdownIt{}
-	_ = md.MarkdownIt("default", pkg.Options{Highlight: func(s string, s2 string, s3 string) string {
+	_ = md.MarkdownIt("default", pkg.Options{Highlight: func(s string, _ string, _ string) string {
 		return "<pre><code>==" + s + "==</code></pre>"
 	}})
 
 	assert.Equal(t, "<pre><code>==hl\n==</code></pre>\n", md.Render("```\nhl\n```", pkg.Env{}))
+}
+
+func TestHighlightEscapeByDefault(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("default", pkg.Options{Highlight: func(_ string, _ string, _ string) string {
+		return ""
+	}})
+
+	assert.Equal(t, "<pre><code>&amp;\n</code></pre>\n", md.Render("```\n&\n```", pkg.Env{}))
+}
+
+func TestHighlightArguments(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("default", pkg.Options{Highlight: func(str string, lang string, attrs string) string {
+		assert.Equal(t, "a", lang)
+		assert.Equal(t, "b  c  d", attrs)
+		return "<pre><code>==" + str + "==</code></pre>"
+	}})
+
+	assert.Equal(t, "<pre><code>==hl\n==</code></pre>\n", md.Render("``` a  b  c  d \nhl\n```", pkg.Env{}))
+}
+
+func TestForceHardBreaks(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("default", pkg.Options{Breaks: true})
+
+	// TODO: Implement md.set() properly
+	assert.Equal(t, "a\nb", md.Render("<p>a<br>\nb</p>\n", pkg.Env{}))
+
+	_ = md.MarkdownIt("default", pkg.Options{Breaks: true, XhtmlOut: true})
+	assert.Equal(t, "a\nb", md.Render("<p>a<br />\nb</p>\n", pkg.Env{}))
 }
