@@ -3,6 +3,7 @@ package pkg
 import (
 	"errors"
 	"fmt"
+	"unicode/utf8"
 )
 
 type Cache map[string][]RuleFunction
@@ -58,7 +59,7 @@ func (ruler *Ruler) Compile() {
 			if !rule.Enabled {
 				continue
 			}
-			if len(chain) > 0 && IndexOf(chain, rule.Alt) < 0 {
+			if utf8.RuneCountInString(chain) > 0 && IndexOf(chain, rule.Alt) < 0 {
 				continue
 			}
 

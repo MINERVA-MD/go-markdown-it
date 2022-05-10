@@ -64,18 +64,22 @@ func Text(
 	//fmt.Println("Running Text")
 	var pos = state.Pos
 
+	// text_special
+
+	// TODO: Fix/Remove null termination chars
+	//fmt.Println(pos, state.PosMax, CharCodeAt(state.Src, pos), IsTerminatorChar(CharCodeAt(state.Src, pos)))
 	for pos < state.PosMax && !IsTerminatorChar(CharCodeAt(state.Src, pos)) {
 		pos++
 	}
 
 	if pos == state.Pos {
+		//fmt.Println("Returning false: not text")
 		return false
 	}
 	if !silent {
-		state.Pending += string([]rune(state.Src)[state.Pos:pos])
+		state.Pending += Slice(state.Src, state.Pos, pos)
 	}
 
 	state.Pos = pos
-
 	return true
 }

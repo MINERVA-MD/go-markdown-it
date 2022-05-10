@@ -1,5 +1,9 @@
 package pkg
 
+import (
+	"unicode/utf8"
+)
+
 func Link(
 	_ *StateCore,
 	_ *StateBlock,
@@ -28,7 +32,7 @@ func (state *StateInline) Link(silent bool) bool {
 	}
 
 	labelStart := state.Pos + 1
-	labelEnd := state.Md.Helpers.ParseLinkLabel(state.Pos, true)
+	labelEnd := state.Md.Helpers.ParseLinkLabel(state, state.Pos, true)
 
 	// parser failed to find ']', so it's not a valid link
 	if labelEnd < 0 {
@@ -64,6 +68,7 @@ func (state *StateInline) Link(silent bool) bool {
 
 		if res.Ok {
 			href = state.Md.NormalizeLink(res.Str)
+
 			if state.Md.ValidateLink(href) {
 				pos = res.Pos
 			} else {
@@ -112,10 +117,10 @@ func (state *StateInline) Link(silent bool) bool {
 
 		if pos < max && CharCodeAt(state.Src, pos) == 0x5B /* [ */ {
 			start = pos + 1
-			pos = state.Md.Helpers.ParseLinkLabel(pos, false)
+			pos = state.Md.Helpers.ParseLinkLabel(state, pos, false)
 			if pos >= 0 {
 				pos++
-				label = state.Src[start:pos]
+				label = Slice(state.Src, start, pos)
 			} else {
 				pos = labelEnd + 1
 			}
@@ -125,8 +130,8 @@ func (state *StateInline) Link(silent bool) bool {
 
 		// covers label === '' and label === undefined
 		// (collapsed reference link and shortcut reference link respectively)
-		if len(label) == 0 {
-			label = state.Src[labelStart:labelEnd]
+		if utf8.RuneCountInString(label) == 0 {
+			label = Slice(state.Src, labelStart, labelEnd)
 		}
 
 		if _, ok := state.Env.References[NormalizeReference(label)]; !ok {
@@ -153,7 +158,7 @@ func (state *StateInline) Link(silent bool) bool {
 			},
 		}
 
-		if len(title) > 0 {
+		if utf8.RuneCountInString(title) > 0 {
 			token.Attrs = append(token.Attrs, Attribute{
 				Name:  "title",
 				Value: title,

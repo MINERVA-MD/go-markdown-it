@@ -14,7 +14,7 @@ type HtmlSequence struct {
 }
 
 var ATTR_NAME = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
-var UNQUOTED = "[^\"'=<>`\\x00-\\x20]+"
+var UNQUOTED = "[^\"'=<>`\x00-\x20]+"
 var SINGLE_QUOTED = "'[^']*'"
 var DOUBLE_QUOTED = "\"[^\"]*\""
 var ATTR_VALUE = fmt.Sprintf("(?:%s|%s|%s)", UNQUOTED, SINGLE_QUOTED, DOUBLE_QUOTED)
@@ -112,7 +112,7 @@ var NEWLINE_RE = regexp.MustCompile("\n")
 var BACKTICK_RE = regexp.MustCompile("^ (.+) $")
 
 var EMAIL_RE = regexp.MustCompile("^([a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$")
-var AUTOLINK_RE = regexp.MustCompile("^([a-zA-Z][a-zA-Z0-9+.\\-]{1,31}):([^<>\\x00-\\x20]*)$")
+var AUTOLINK_RE = regexp.MustCompile("^([a-zA-Z][a-zA-Z0-9+.\\-]{1,31}):([^<>\x00-\x20]*)$")
 var TABLE_ALIGN_RE = regexp.MustCompile("^:?-+:?")
 
 var PLUS_MINUS_RE = regexp.MustCompile("\\+-")
@@ -130,7 +130,7 @@ var SCOPED_ABBR_RE = regexp.MustCompile("(?i)\\((c|tm|r)\\)")
 var QUOTE_TEST_RE = regexp.MustCompile("['\"]")
 
 //var QUOTE_RE = regexp.MustCompile("['\"]")
-//var APOSTROPHE = regexp.MustCompile("'\\u2019")
+//var APOSTROPHE = regexp.MustCompile("'\u2019")
 
 var HTTP_RE = regexp.MustCompile("^http:\\/\\/")
 var MAILTO_RE = regexp.MustCompile("(?i)^mailto:")
@@ -140,3 +140,5 @@ var LINKIFY_CONFLICT_RE = regexp.MustCompile("\\*+$")
 
 var BAD_PROTO_RE = regexp.MustCompile("^(vbscript|javascript|file|data):")
 var GOOD_DATA_RE = regexp.MustCompile("^data:image\\/(gif|png|jpeg|webp);")
+
+var NULL_RE = regexp.MustCompile("\u0000")

@@ -1,5 +1,7 @@
 package pkg
 
+import "unicode/utf8"
+
 func IsLinkOpen(str string) bool {
 	return LINK_OPEN.MatchString(str)
 }
@@ -47,6 +49,7 @@ func (state *StateInline) HtmlInline(silent bool) bool {
 		return false
 	}
 
+	// TODO: Replace wit Slice function
 	match := HTML_TAG_RE.FindStringSubmatch(state.Src[pos:])
 
 	if len(match) == 0 {
@@ -55,7 +58,8 @@ func (state *StateInline) HtmlInline(silent bool) bool {
 
 	if !silent {
 		token := state.Push("html_inline", "", 0)
-		token.Content = state.Src[pos : pos+len(match[0])]
+		// TODO: change len to count chars instead of chars
+		token.Content = Slice(state.Src, pos, pos+utf8.RuneCountInString(match[0]))
 
 		if IsLinkOpen(token.Content) {
 			state.LinkLevel++
@@ -66,7 +70,7 @@ func (state *StateInline) HtmlInline(silent bool) bool {
 		}
 	}
 
-	state.Pos += len(match[0])
+	state.Pos += utf8.RuneCountInString(match[0])
 
 	return true
 }

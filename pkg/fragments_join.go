@@ -22,12 +22,15 @@ func FragmentsJoin(
 //
 
 func (state *StateInline) FragmentsJoin() {
+	//fmt.Println("Running FragmentsJoin")
 	curr := 0
 	last := 0
 	level := 0
 	tokens := state.Tokens
 	max := len(*state.Tokens)
 
+	//fmt.Println(len(*state.Tokens))
+	//utils.PrettyPrint(*state.Tokens)
 	for ; curr < max; curr++ {
 		// re-calculate levels after emphasis/strikethrough turns some text nodes
 		// into opening/closing tags
@@ -45,12 +48,12 @@ func (state *StateInline) FragmentsJoin() {
 
 		if token.Type == "text" &&
 			curr+1 < max &&
-			(*tokens)[curr+1].Type == "text" {
+			(*state.Tokens)[curr+1].Type == "text" {
 			// collapse two adjacent text nodes
-			(*tokens)[curr+1].Content = token.Content + (*tokens)[curr+1].Content
+			(*state.Tokens)[curr+1].Content = token.Content + (*tokens)[curr+1].Content
 		} else {
 			if curr != last {
-				(*tokens)[last] = (*tokens)[curr]
+				(*state.Tokens)[last] = (*tokens)[curr]
 			}
 			last++
 		}
@@ -59,5 +62,8 @@ func (state *StateInline) FragmentsJoin() {
 	if curr != last {
 		_tokens := (*tokens)[0:last]
 		tokens = &_tokens
+		*state.Tokens = _tokens
 	}
+	//fmt.Println(len(*state.Tokens))
+	//utils.PrettyPrint(state.Tokens)
 }

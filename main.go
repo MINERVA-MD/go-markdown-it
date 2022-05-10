@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-markdown-it/pkg"
+	"go-markdown-it/pkg/utils"
 	"regexp"
 )
 
@@ -12,6 +13,6 @@ func main() {
 	var found = re.FindStringSubmatch(str)
 	fmt.Println(found)
 
-	fmt.Println(pkg.FromCodePoint(0x20))
-
+	var mdurl = pkg.MdUrl{}
+	utils.PrettyPrint(mdurl.Parse("http://example.com?find=\\*", true))
 }

@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"strings"
+	"unicode/utf8"
 )
 
 func Backtick(
@@ -16,6 +17,8 @@ func Backtick(
 }
 
 func (state *StateInline) Backtick(silent bool) bool {
+	//fmt.Println("Entered Backtick")
+
 	pos := state.Pos
 	ch := CharCodeAt(state.Src, pos)
 
@@ -32,12 +35,13 @@ func (state *StateInline) Backtick(silent bool) bool {
 		pos++
 	}
 
-	marker := state.Src[start:pos]
-	openerLength := len(marker)
+	marker := Slice(state.Src, start, pos)
+	openerLength := utf8.RuneCountInString(marker)
 
 	backTicksCheck := 0
 
-	if state.Backticks[openerLength] != 0 {
+	if len(state.Backticks) > 0 &&
+		state.Backticks[openerLength] != 0 {
 		backTicksCheck = state.Backticks[openerLength]
 	}
 
@@ -55,6 +59,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 
 	// Nothing found in the cache, scan until the end of the line (or until marker is found)
 	for {
+		// TODO: Replace with Slice function
 		matchStart = strings.Index(state.Src[matchEnd:], "`")
 
 		if matchStart == -1 {
@@ -75,7 +80,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 			if !silent {
 				token := state.Push("code_inline", "code", 0)
 				token.Markup = marker
-				token.Content = state.Src[pos:matchStart]
+				token.Content = Slice(state.Src, pos, matchStart)
 				token.Content = NEWLINES_RE.ReplaceAllString(token.Content, " ")
 				token.Content = BACKTICK_RE.ReplaceAllString(token.Content, "$1")
 			}
@@ -95,6 +100,8 @@ func (state *StateInline) Backtick(silent bool) bool {
 	}
 
 	state.Pos += openerLength
+
+	//fmt.Println(start, ch, pos, marker, openerLength)
 
 	return true
 }

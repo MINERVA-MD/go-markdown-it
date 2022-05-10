@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/exp/slices"
 	"strings"
+	"unicode/utf8"
 )
 
 //type Config struct {
@@ -135,7 +136,7 @@ func (md *MarkdownIt) MarkdownIt(presetName string, options Options) error {
 
 func (md *MarkdownIt) Configure(presetName string) error {
 
-	if len(presetName) == 0 {
+	if utf8.RuneCountInString(presetName) == 0 {
 		return errors.New("wrong Markdown-It preset, can't be empty")
 
 	}
@@ -178,13 +179,33 @@ func (md *MarkdownIt) Enable(list []string, ignoreInvalid bool) error {
 
 	var _list []string
 	var result []string
-	for _, ruler := range []Ruler{md.Core.Ruler, md.Block.Ruler, md.Block.Ruler} {
-		_list, _ = ruler.Enable(list, true)
-		result = append(result, _list...)
+
+	// Core
+	_list, err := md.Core.Ruler.Enable(list, true)
+	if err != nil {
+		return err
 	}
+	result = append(result, _list...)
+
+	// Block
+	_list, err = md.Block.Ruler.Enable(list, true)
+	if err != nil {
+		return err
+	}
+	result = append(result, _list...)
+
+	// Inline
+	_list, err = md.Inline.Ruler.Enable(list, true)
+	if err != nil {
+		return err
+	}
+	result = append(result, _list...)
 
 	// Ruler 2
-	_list, _ = md.Inline.Ruler2.Enable(list, true)
+	_list, err = md.Inline.Ruler2.Enable(list, true)
+	if err != nil {
+		return err
+	}
 	result = append(result, _list...)
 
 	var missed []string
@@ -195,7 +216,7 @@ func (md *MarkdownIt) Enable(list []string, ignoreInvalid bool) error {
 		}
 	}
 
-	if len(missed) == 0 && !ignoreInvalid {
+	if len(missed) > 0 && !ignoreInvalid {
 		return errors.New("MarkdownIt. Failed to enable unknown rule(s): " + missed[0])
 	}
 
@@ -206,10 +227,18 @@ func (md *MarkdownIt) Disable(list []string, ignoreInvalid bool) error {
 
 	var _list []string
 	var result []string
-	for _, ruler := range []Ruler{md.Core.Ruler, md.Block.Ruler, md.Block.Ruler} {
-		_list, _ = ruler.Disable(list, true)
-		result = append(result, _list...)
-	}
+
+	// Core
+	_list, _ = md.Core.Ruler.Disable(list, true)
+	result = append(result, _list...)
+
+	// Block
+	_list, _ = md.Block.Ruler.Disable(list, true)
+	result = append(result, _list...)
+
+	// Inline
+	_list, _ = md.Inline.Ruler.Disable(list, true)
+	result = append(result, _list...)
 
 	// Ruler 2
 	_list, _ = md.Inline.Ruler2.Disable(list, true)
@@ -223,7 +252,7 @@ func (md *MarkdownIt) Disable(list []string, ignoreInvalid bool) error {
 		}
 	}
 
-	if len(missed) == 0 && !ignoreInvalid {
+	if len(missed) > 0 && !ignoreInvalid {
 		return errors.New("MarkdownIt. Failed to disable unknown rule(s): " + missed[0])
 	}
 
@@ -239,10 +268,14 @@ func (md *MarkdownIt) Parse(src string, env Env) []*Token {
 	state.StateCore(src, md, env)
 
 	md.Core.Process(state)
+	//fmt.Println(len((*state.Tokens)[1].Children))
 	//utils.PrettyPrint(state.Tokens)
+	//utils.PrettyPrint((*state.Tokens)[1].Children)
 
-	return state.Tokens
+	return *state.Tokens
 }
+
+//Inline Tokenization
 
 func (md *MarkdownIt) Render(src string, env Env) string {
 	tokens := md.Parse(src, env)
@@ -256,7 +289,9 @@ func (md *MarkdownIt) ParseInline(src string, env Env) []*Token {
 
 	md.Core.Process(state)
 
-	return state.Tokens
+	//utils.PrettyPrint(state.Tokens)
+
+	return *state.Tokens
 }
 
 func (md *MarkdownIt) RenderInline(src string, env Env) string {

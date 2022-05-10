@@ -1,5 +1,7 @@
 package pkg
 
+import "unicode/utf8"
+
 func Newline(
 	_ *StateCore,
 	_ *StateBlock,
@@ -18,7 +20,7 @@ func (state *StateInline) Newline(silent bool) bool {
 		return false
 	}
 
-	pmax := len(state.Pending) - 1
+	pmax := utf8.RuneCountInString(state.Pending) - 1
 	max := state.PosMax
 
 	// '  \n' -> hardbreak
@@ -32,14 +34,15 @@ func (state *StateInline) Newline(silent bool) bool {
 				// Find whitespaces tail of pending chars.
 				ws := pmax - 1
 
+				// text_special
 				for ws >= 1 && CharCodeAt(state.Pending, ws-1) == 0x20 {
 					ws--
 				}
 
-				state.Pending = state.Pending[:ws]
+				state.Pending = Slice(state.Pending, 0, ws)
 				state.Push("softbreak", "br", 0)
 			} else {
-				state.Pending = state.Pending[:len(state.Pending)-1]
+				state.Pending = Slice(state.Pending, 0, utf8.RuneCountInString(state.Pending)-1)
 				state.Push("softbreak", "br", 0)
 			}
 		} else {

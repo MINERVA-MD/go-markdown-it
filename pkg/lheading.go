@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -18,7 +17,7 @@ func LHeading(
 
 func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 
-	fmt.Println("Processing LHeading")
+	//fmt.Println("Processing LHeading")
 
 	var pos int
 	var max int

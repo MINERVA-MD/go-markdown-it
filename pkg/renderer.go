@@ -1,8 +1,8 @@
 package pkg
 
 import (
-	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 type Rules struct{}
@@ -10,7 +10,8 @@ type Renderer struct {
 	Rules Rules
 }
 
-//Running Text
+// Running Text
+
 func (r *Renderer) RenderAttrs(token *Token) string {
 	var result = ""
 
@@ -19,7 +20,7 @@ func (r *Renderer) RenderAttrs(token *Token) string {
 	}
 
 	for _, attr := range token.Attrs {
-		result += " " + EscapeHtml(attr.Name) + "=\"" + EscapeHtml(attr.Value)
+		result += " " + EscapeHtml(attr.Name) + "=\"" + EscapeHtml(attr.Value) + "\""
 	}
 
 	return result
@@ -117,13 +118,13 @@ func (r *Renderer) Render(tokens []*Token, options Options, env Env) string {
 
 	for idx, token := range tokens {
 		if token.Type == "inline" {
-			fmt.Println("Attempting to render Inline token " + token.Content)
+			//fmt.Println("Attempting to render Inline token " + token.Content)
 			result += r.RenderInline(token.Children, options, env)
 		} else if r.Rules.IsRuleTypeValid(token.Type) {
-			fmt.Println("Attempting to render rule: " + token.Type)
+			//fmt.Println("Attempting to render rule: " + token.Type)
 			result += r.RenderRule(token.Type, tokens, idx, options, env)
 		} else {
-			fmt.Println("Attempting to render token: " + token.Type)
+			//fmt.Println("Attempting to render token: " + token.Type)
 			result += r.RenderToken(tokens, idx, options)
 		}
 	}
@@ -215,13 +216,13 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 	var tmpToken *Token
 	var token = tokens[idx]
 
-	if len(token.Info) > 0 {
+	if utf8.RuneCountInString(token.Info) > 0 {
 		info = strings.TrimSpace(token.Info)
 	} else {
 		info = ""
 	}
 
-	if len(info) > 0 {
+	if utf8.RuneCountInString(info) > 0 {
 		arr = SPACE_RE.Split(info, 2)
 		langName = arr[0]
 		langAttrs = arr[1]
@@ -229,7 +230,7 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 
 	if options.Highlight != nil {
 		var optHighlight = options.Highlight(token.Content, langName, langAttrs)
-		if len(optHighlight) > 0 {
+		if utf8.RuneCountInString(optHighlight) > 0 {
 			highlighted = optHighlight
 		} else {
 			highlighted = EscapeHtml(token.Content)
@@ -242,7 +243,7 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 		return highlighted + "\n"
 	}
 
-	if len(info) > 0 {
+	if utf8.RuneCountInString(info) > 0 {
 		var i = token.AttrIndex("class")
 		if token.Attrs != nil {
 			copy(tmpAttrs, token.Attrs)
@@ -298,7 +299,7 @@ func (rules Rules) IsRuleTypeValid(Type string) bool {
 	case "code_inline":
 		return true
 
-	case "code_block ":
+	case "code_block":
 		return true
 
 	case "fence":

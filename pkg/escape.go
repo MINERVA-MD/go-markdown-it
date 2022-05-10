@@ -3,7 +3,7 @@ package pkg
 var ESCAPED = [256]int{}
 
 func InitEscapedChars() {
-	chars := "\\!\"#$%&\\'()*+,./:;<=>?@[]^_`{|}~-"
+	chars := "\\!\"#$%&'()*+,./:;<=>?@[]^_`{|}~-"
 
 	for _, char := range chars {
 		ESCAPED[char] = 1
@@ -18,8 +18,10 @@ func Escape(
 	_ int,
 	silent bool,
 ) bool {
+
 	pos := state.Pos
 	max := state.PosMax
+	initEscapeMap := false
 
 	if CharCodeAt(state.Src, pos) != 0x5C {
 		return false
@@ -50,12 +52,13 @@ func Escape(
 	}
 
 	// TODO: Double check this indexing is Unicode compliant
-	escapedStr := string(state.Src[pos])
+	escapedStr := string(CharCodeAt(state.Src, pos))
 
 	if ch1 >= 0xD800 && ch1 <= 0xDBFF && pos+1 < max {
 		ch2 = CharCodeAt(state.Src, pos+1)
 
 		if ch2 >= 0xDC00 && ch2 <= 0xDFFF {
+			// TODO: Double check this indexing is Unicode compliant
 			escapedStr += string(state.Src[pos+1])
 			pos++
 		}
@@ -65,6 +68,12 @@ func Escape(
 
 	if !silent {
 		token := state.Push("text_special", "", 0)
+
+		//fmt.Println(ch1)
+		if !initEscapeMap {
+			InitEscapedChars()
+			initEscapeMap = true
+		}
 
 		if ch1 < 256 && ESCAPED[ch1] != 0 {
 			token.Content = escapedStr

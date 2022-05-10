@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -17,7 +16,7 @@ func Fence(
 }
 
 func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
-	fmt.Println("Processing Fence")
+	//fmt.Println("Processing Fence")
 	var mem int
 	var marker rune
 	var markup string
@@ -51,8 +50,8 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 
-	markup = state.Src[mem:pos]
-	params = state.Src[pos:max]
+	markup = Slice(state.Src, mem, pos)
+	params = Slice(state.Src, pos, max)
 
 	if marker == 0x60 {
 		if strings.Contains(params, string(marker)) {

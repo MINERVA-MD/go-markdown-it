@@ -1,8 +1,8 @@
 package pkg
 
 import (
-	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 func Reference(
@@ -18,7 +18,7 @@ func Reference(
 
 func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 
-	fmt.Println("Processing Reference")
+	//fmt.Println("Processing Reference")
 	lines := 0
 	var endLine int
 	var labelEnd int
@@ -91,7 +91,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	}
 
 	str := strings.TrimSpace(state.GetLines(startLine, nextLine, state.BlkIndent, false))
-	max = len(str)
+	max = utf8.RuneCountInString(str)
 
 	for pos = 1; pos < max; pos++ {
 		ch := CharCodeAt(state.Src, pos)
@@ -184,7 +184,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	}
 
 	if pos < max && CharCodeAt(state.Src, pos) != 0x0A {
-		if len(title) > 0 {
+		if utf8.RuneCountInString(title) > 0 {
 			// garbage at the end of the line after title,
 			// but it could still be a valid reference if we roll back
 			title = ""
@@ -206,7 +206,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	}
 
 	label := NormalizeReference(str[1:labelEnd])
-	if len(label) == 0 {
+	if utf8.RuneCountInString(label) == 0 {
 		// CommonMark 0.20 disallows empty labels
 		return false
 	}

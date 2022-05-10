@@ -12,7 +12,15 @@ func BalancePairs(
 	return true
 }
 
-func (state *StateInline) ProcessDelimiters(delimiters []Delimiter) {
+func (state *StateInline) ProcessDelimiters(delim string, idx int) {
+
+	var delimiters []Delimiter
+
+	if delim == "delimiters" {
+		delimiters = state.Delimiters
+	} else {
+		delimiters = state.TokensMeta[idx].Delimiters
+	}
 
 	max := len(delimiters)
 
@@ -24,7 +32,7 @@ func (state *StateInline) ProcessDelimiters(delimiters []Delimiter) {
 	var jumps []int
 	var closerIdx int
 	lastTokenIdx := -2
-	var openersBottom map[rune][]int
+	openersBottom := map[rune][]int{}
 
 	for closerIdx = 0; closerIdx < max; closerIdx++ {
 		closer := delimiters[closerIdx]
@@ -45,10 +53,6 @@ func (state *StateInline) ProcessDelimiters(delimiters []Delimiter) {
 		// Length is only used for emphasis-specific "rule of 3",
 		// if it's not defined (in strikethrough or 3rd party plugins),
 		// we can default it to 0 to disable those checks.
-
-		if closer.Length <= 1 {
-			closer.Length = 0
-		}
 
 		if !closer.Close {
 			continue
@@ -111,9 +115,10 @@ func (state *StateInline) ProcessDelimiters(delimiters []Delimiter) {
 					jumps[closerIdx] = closerIdx - openerIdx + lastJump
 					jumps[openerIdx] = lastJump
 
-					closer.Open = false
-					opener.End = closerIdx
-					opener.Close = false
+					delimiters[openerIdx].Open = false
+					delimiters[openerIdx].End = closerIdx
+					delimiters[openerIdx].Close = false
+
 					newMinOpenerIdx = -1
 					// treat next token as start of run,
 					// it optimizes skips in **<...>**a**<...>** pathological case
@@ -148,11 +153,11 @@ func (state *StateInline) ProcessDelimiters(delimiters []Delimiter) {
 func (state *StateInline) LinkPairs() {
 	tokensMeta := state.TokensMeta
 
-	state.ProcessDelimiters(state.Delimiters)
+	state.ProcessDelimiters("delimiters", -1)
 
-	for _, tokenMeta := range tokensMeta {
+	for idx, tokenMeta := range tokensMeta {
 		if len(tokenMeta.Delimiters) > 0 {
-			state.ProcessDelimiters(tokenMeta.Delimiters)
+			state.ProcessDelimiters("metaDelimiters", idx)
 		}
 	}
 }

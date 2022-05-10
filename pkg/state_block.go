@@ -170,7 +170,7 @@ func (state *StateBlock) SkipEmptyLines(from int) int {
 }
 
 func (state *StateBlock) SkipSpaces(pos int) int {
-	var max = len(state.Src)
+	var max = utf8.RuneCountInString(state.Src)
 	for ; pos < max; pos++ {
 		ch := CharCodeAt(state.Src, pos)
 		if IsSpace(ch) {
@@ -198,7 +198,7 @@ func (state *StateBlock) SkipSpacesBack(pos int, min int) int {
 }
 
 func (state *StateBlock) SkipChars(pos int, code rune) int {
-	var max = len(state.Src)
+	var max = utf8.RuneCountInString(state.Src)
 	for ; pos < max; pos++ {
 		ch := CharCodeAt(state.Src, pos)
 		if ch != code {
@@ -274,16 +274,17 @@ func (state *StateBlock) GetLines(begin int, end int, indent int, keepLastLF boo
 		if lineIndent > indent {
 			// partially expanding tabs in code blocks, e.g '\t\tfoobar'
 			// with indent=2 becomes '  \tfoobar'
-			queue[i] = strings.Join(make([]string, lineIndent-indent+1)[:], " ") + state.Src[first:last]
+			queue[i] = strings.Join(make([]string, lineIndent-indent+1)[:], " ") + Slice(state.Src, first, last)
 		} else {
-			queue[i] = state.Src[first:last]
+			queue[i] = Slice(state.Src, first, last)
 		}
 		line++
 	}
+	//fmt.Printf("%q", queue)
 	return strings.Join(queue[:], "")
 }
 
-// CharCodeAt This is O(n) consider replacing this for optimization’s sake
+// CharCodeAt This is O(n), consider replacing this for optimization’s sake
 func CharCodeAt(s string, n int) rune {
 	i := 0
 	for _, r := range s {
@@ -293,4 +294,8 @@ func CharCodeAt(s string, n int) rune {
 		i++
 	}
 	return 0
+}
+
+func Slice(s string, start int, end int) string {
+	return string([]rune(s)[start:end])
 }

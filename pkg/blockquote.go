@@ -1,7 +1,5 @@
 package pkg
 
-import "fmt"
-
 func BlockQuote(
 	_ *StateCore,
 	state *StateBlock,
@@ -15,7 +13,7 @@ func BlockQuote(
 
 func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) bool {
 
-	fmt.Println("Processing BlockQuote")
+	//fmt.Println("Processing BlockQuote")
 	var nextLine int
 	var oldIndent int
 	var adjustTab bool
@@ -34,10 +32,11 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	}
 
 	// check the block quote marker
-	pos++
 	if CharCodeAt(state.Src, pos) != 0x3E /* > */ {
 		return false
 	}
+
+	pos++
 
 	// we know that it"s going to be a valid blockquote,
 	// so no point trying to find the end of it in silent mode

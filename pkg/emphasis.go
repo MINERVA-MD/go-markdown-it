@@ -14,7 +14,7 @@ func (state *StateInline) ETokenize(silent bool) bool {
 
 	scanned := state.ScanDelims(state.Pos, marker == 0x2A)
 
-	for i := 1; i < 5; i++ {
+	for i := 0; i < scanned.Length; i++ {
 		token := state.Push("text", "", 0)
 		token.Content = string(marker)
 
@@ -33,11 +33,20 @@ func (state *StateInline) ETokenize(silent bool) bool {
 	return true
 }
 
-func (state *StateInline) _PostProcess(delimiters []Delimiter) {
+func (state *StateInline) _PostProcess(delim string, idx int) {
+	var i int
 	var startDelim Delimiter
+	var delimiters []Delimiter
+
+	if delim == "delimiters" {
+		delimiters = state.Delimiters
+	} else {
+		delimiters = state.TokensMeta[idx].Delimiters
+	}
+
 	max := len(delimiters)
 
-	for i := max - 1; i >= 0; i-- {
+	for i = max - 1; i >= 0; i-- {
 		startDelim = delimiters[i]
 
 		if startDelim.Marker != 0x5F /* _ */ && startDelim.Marker != 0x2A /* * */ {
@@ -127,11 +136,11 @@ func EPostProcess(
 
 func (state *StateInline) EPostProcess() {
 	tokensMeta := state.TokensMeta
-	state._PostProcess(state.Delimiters)
+	state._PostProcess("delimiters", -1)
 
-	for _, tokenMeta := range tokensMeta {
+	for idx, tokenMeta := range tokensMeta {
 		if len(tokenMeta.Delimiters) > 0 {
-			state._PostProcess(tokenMeta.Delimiters)
+			state._PostProcess("metaDelimiters", idx)
 		}
 	}
 }

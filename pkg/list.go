@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -118,7 +117,7 @@ func List(
 
 func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 
-	fmt.Println("Processing List")
+	//fmt.Println("Processing List")
 	var pos int
 	var max int
 	var start int
@@ -170,7 +169,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 	if posAfterMarker >= 0 {
 		isOrdered = true
 		start = state.BMarks[startLine] + state.TShift[startLine]
-		markerValue, _ = strconv.Atoi(state.Src[start : posAfterMarker-1])
+		markerValue, _ = strconv.Atoi(Slice(state.Src, start, posAfterMarker-1))
 
 		// If we"re starting a new ordered list right after
 		// a paragraph, it should start with 1.
@@ -285,7 +284,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 		itemLines = []int{startLine, 0}
 		token.Map = []int{startLine, 0}
 		if isOrdered {
-			token.Info = state.Src[start : posAfterMarker-1]
+			token.Info = Slice(state.Src, start, posAfterMarker-1)
 		}
 
 		// change current state, then restore it after parser subcall

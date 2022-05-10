@@ -1,6 +1,8 @@
 package pkg
 
-import "fmt"
+import (
+	"unicode/utf8"
+)
 
 var b_rules = []Rule{
 	{
@@ -94,8 +96,6 @@ func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, si
 	hasEmptyLines := false
 	maxNesting := state.Md.Options.MaxNesting
 
-	fmt.Println(hasEmptyLines, maxNesting, startLine, endLine)
-
 	for line < endLine {
 		state.Line = state.SkipEmptyLines(line)
 		line = state.Line
@@ -131,7 +131,7 @@ func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, si
 		}
 
 		// set state.tight if we had an empty line before current tag
-		// i.e. latest empty line should not count
+		// i.e. the latest empty line should not count
 		state.Tight = !hasEmptyLines
 
 		// paragraph might "eat" one newline after it in nested lists
@@ -150,7 +150,7 @@ func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, si
 }
 
 func (b *ParserBlock) Parse(src string, md *MarkdownIt, env Env, outTokens *[]*Token) {
-	if len(src) == 0 {
+	if utf8.RuneCountInString(src) == 0 {
 		return
 	}
 

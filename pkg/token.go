@@ -104,15 +104,17 @@ func (t *Token) AttrSet(attribute Attribute) {
 
 // AttrGet gets the value of attribute `name`.
 // Returns nil if it does not exist, otherwise the value of Attribute
-func (t *Token) AttrGet(name string) string {
+func (t *Token) AttrGet(name string) (string, bool) {
 	var value string
 	var idx = t.AttrIndex(name)
 
 	if idx >= 0 {
 		value = t.Attrs[idx].Value
+	} else {
+		return "", false
 	}
 
-	return value
+	return value, true
 }
 
 // AttrJoin joins attribute.Value to existing attribute via space.

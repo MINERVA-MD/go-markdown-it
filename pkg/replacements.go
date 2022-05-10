@@ -73,20 +73,19 @@ func Replace(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bo
 		return false
 	}
 
-	for blkIdx := len(state.Tokens) - 1; blkIdx >= 0; blkIdx-- {
+	for blkIdx := len(*state.Tokens) - 1; blkIdx >= 0; blkIdx-- {
 
-		if state.Tokens[blkIdx].Type != "inline" {
+		if (*state.Tokens)[blkIdx].Type != "inline" {
 			continue
 		}
 
-		if SCOPED_ABBR_TEST_RE.MatchString(state.Tokens[blkIdx].Content) {
-			ReplaceScoped(state.Tokens[blkIdx].Children)
+		if SCOPED_ABBR_TEST_RE.MatchString((*state.Tokens)[blkIdx].Content) {
+			ReplaceScoped((*state.Tokens)[blkIdx].Children)
 		}
 
-		if RARE_RE.MatchString(state.Tokens[blkIdx].Content) {
-			ReplaceRare(state.Tokens[blkIdx].Children)
+		if RARE_RE.MatchString((*state.Tokens)[blkIdx].Content) {
+			ReplaceRare((*state.Tokens)[blkIdx].Children)
 		}
 	}
-
 	return true
 }

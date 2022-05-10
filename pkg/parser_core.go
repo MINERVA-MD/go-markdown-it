@@ -58,6 +58,13 @@ func (c *ParserCore) Process(state *StateCore) {
 	rules := c.Ruler.GetRules("")
 
 	for idx := 0; idx < len(rules); idx++ {
-		rules[idx](state, nil, nil, 0, 0, false)
+		_ = rules[idx](state, nil, nil, 0, 0, false)
+		if idx == 1 {
+			//utils.PrettyPrint(state.Tokens)
+		} else if idx == 2 {
+			//utils.PrettyPrint(state.Tokens)
+		}
 	}
+
+	//utils.PrettyPrint(state.Tokens)
 }

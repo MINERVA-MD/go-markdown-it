@@ -11,7 +11,7 @@ func Normalize(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ 
 	src = NEWLINES_RE.ReplaceAllString(state.Src, "\n")
 
 	// Replace NULL characters
-	src = strings.Replace(src, "\x00", "\uFFFD", -1)
+	src = strings.Replace(src, "\u0000", "\uFFFD", -1)
 
 	state.Src = src
 

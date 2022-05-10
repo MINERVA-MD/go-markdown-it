@@ -3,6 +3,7 @@ package pkg
 import (
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func Entity(
@@ -32,6 +33,7 @@ func (state *StateInline) Entity(silent bool) bool {
 	ch := CharCodeAt(state.Src, pos+1)
 
 	if ch == 0x23 /* # */ {
+		// TODO: Replace wit Slice function
 		match := DIGITAL_RE.FindStringSubmatch(state.Src[pos:])
 
 		if len(match) > 0 {
@@ -58,10 +60,11 @@ func (state *StateInline) Entity(silent bool) bool {
 				token.Markup = match[0]
 				token.Info = "entity"
 			}
-			state.Pos += len(match[0])
+			state.Pos += utf8.RuneCountInString(match[0])
 			return true
 		}
 	} else {
+		// TODO: Replace wit Slice function
 		match := NAMED_RE.FindStringSubmatch(state.Src[pos:])
 
 		if len(match) > 0 {
@@ -72,7 +75,7 @@ func (state *StateInline) Entity(silent bool) bool {
 					token.Markup = match[0]
 					token.Info = "entity"
 
-					state.Pos += len(match[0])
+					state.Pos += utf8.RuneCountInString(match[0])
 					return true
 				}
 			}

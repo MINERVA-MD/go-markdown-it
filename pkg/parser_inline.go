@@ -1,6 +1,8 @@
 package pkg
 
-import "fmt"
+import (
+	"unicode/utf8"
+)
 
 var i1Rules = []Rule{
 	{
@@ -12,7 +14,7 @@ var i1Rules = []Rule{
 	{
 		Name:    "linkify",
 		Enabled: false,
-		Fn:      ILinkify,
+		Fn:      LLinkify,
 		Alt:     []string{},
 	},
 	{
@@ -151,7 +153,7 @@ func (i *ParserInline) SkipToken(state *StateInline) {
 			// we'd need a separate private state variable for this purpose.
 			//
 			state.Level++
-			ok = rule(nil, nil, state, 0, 0, false)
+			ok = rule(nil, nil, state, 0, 0, true)
 			state.Level--
 
 			if ok {
@@ -184,7 +186,7 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 	end := state.PosMax
 	maxNesting := state.Md.Options.MaxNesting
 
-	fmt.Println("Inline Tokenization")
+	//fmt.Println("Inline Tokenization")
 
 	for state.Pos < end {
 		// Try all possible rules.
@@ -197,8 +199,12 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 		var ok bool
 		if state.Level < maxNesting {
 			for _, rule := range _rules {
+				//fmt.Println("Rule: ", idx)
 				ok = rule(nil, nil, state, 0, 0, false)
+				//fmt.Println(ok)
+				//utils.PrettyPrint(state.Tokens)
 				if ok {
+					//fmt.Println("Breaking")
 					break
 				}
 			}
@@ -211,28 +217,42 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 			continue
 		}
 
-		state.Pending += string(state.Src[state.Pos])
+		// TODO: Double check this indexing is Unicode compliant
+		state.Pending += string([]rune(state.Src)[state.Pos])
 		state.Pos++
 	}
-	if len(state.Pending) > 0 {
+
+	if utf8.RuneCountInString(state.Pending) > 0 {
 		state.PushPending()
 	}
 }
 
 func (i *ParserInline) Parse(src string, md *MarkdownIt, env Env, outTokens *[]*Token) {
-	fmt.Println("Src is: " + src)
-	if len(src) == 0 {
+	if utf8.RuneCountInString(src) == 0 {
 		return
 	}
 
 	state := &StateInline{}
 	state.StateInline(src, md, env, outTokens)
 
+	//utils.PrettyPrint(state.Tokens)
+
 	i.Tokenize(state)
+
+	//fmt.Println(len(*state.Tokens))
+	//utils.PrettyPrint(state.Tokens)
 
 	_rules := i.Ruler2.GetRules("")
 
 	for _, rule := range _rules {
-		rule(nil, nil, state, 0, 0, false)
+		_ = rule(nil, nil, state, 0, 0, false)
 	}
+
+	//*outTokens = *state.Tokens
+
+	//fmt.Println(len(*outTokens))
+	//utils.PrettyPrint(*outTokens)
+	//
+	//fmt.Println(len(*state.Tokens))
+	//utils.PrettyPrint(*state.Tokens)
 }

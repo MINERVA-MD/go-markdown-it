@@ -1,6 +1,8 @@
 package pkg
 
-import "fmt"
+import (
+	"unicode/utf8"
+)
 
 func HtmlBlock(
 	_ *StateCore,
@@ -14,7 +16,7 @@ func HtmlBlock(
 }
 
 func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
-	fmt.Println("Processing Html Block")
+	//fmt.Println("Processing Html Block")
 
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
@@ -64,7 +66,7 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
 
 			matchEnd, _ = HTML_SEQUENCES[i].End.MatchString(lineText)
 			if !matchEnd {
-				if len(lineText) != 0 {
+				if utf8.RuneCountInString(lineText) != 0 {
 					nextLine++
 				}
 				break

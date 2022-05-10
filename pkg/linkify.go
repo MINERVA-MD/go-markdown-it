@@ -1,8 +1,8 @@
 package pkg
 
 import (
-	"fmt"
 	"gitlab.com/golang-commonmark/linkify"
+	"unicode/utf8"
 )
 
 type Linkify struct{}
@@ -24,6 +24,17 @@ func (l *Linkify) Test(_ string) bool {
 
 func (l *Linkify) Pretest(_ string) bool {
 	return false
+}
+
+func LLinkify(
+	_ *StateCore,
+	_ *StateBlock,
+	state *StateInline,
+	_ int,
+	_ int,
+	silent bool,
+) bool {
+	return state.Linkify(silent)
 }
 
 func (state *StateInline) Linkify(silent bool) bool {
@@ -58,8 +69,9 @@ func (state *StateInline) Linkify(silent bool) bool {
 
 	// 	link := state.Md.LLinkify.matchAtStart(state.src.slice(pos - proto.length));
 	// TODO: Make proper call ^
-	link := state.Src[pos-len(proto):]
-	if len(link) == 0 {
+	// TODO: Replace with call to Slice
+	link := state.Src[pos-utf8.RuneCountInString(proto):]
+	if utf8.RuneCountInString(link) == 0 {
 		return false
 	}
 
@@ -73,8 +85,9 @@ func (state *StateInline) Linkify(silent bool) bool {
 	}
 
 	if !silent {
-		// TODO: double check negative start
-		state.Pending = state.Pending[0:-len(proto)]
+		// TODO: double check negative start!!!!!
+		l := utf8.RuneCountInString(proto)
+		state.Pending = Slice(state.Pending, 0, utf8.RuneCountInString(state.Pending)-l)
 
 		token := state.Push("link_open", "a", 1)
 		token.Attrs = []Attribute{
@@ -95,7 +108,7 @@ func (state *StateInline) Linkify(silent bool) bool {
 		token.Info = "auto"
 	}
 
-	state.Pos += len(url) - len(proto)
+	state.Pos += utf8.RuneCountInString(url) - utf8.RuneCountInString(proto)
 
 	return true
 }
@@ -122,8 +135,6 @@ func ILinkify(
 	var tokens []*Token
 	var links []linkify.Link
 	var currentToken *Token
-
-	fmt.Println(state == nil)
 
 	blockTokens := state.Tokens
 
@@ -196,13 +207,13 @@ func ILinkify(
 						continue
 					}
 
-					urlText = text[link.Start:link.End]
+					urlText = Slice(text, link.Start, link.End)
 
 					// Linkifier might send raw hostnames like "example.com", where url
 					// starts with domain name. So we prepend http:// in those cases,
 					// and remove it afterwards.
 					//
-					if len(link.Scheme) == 0 {
+					if utf8.RuneCountInString(link.Scheme) == 0 {
 						urlText = state.Md.NormalizeLinkText("http://" + urlText)
 						urlText = HTTP_RE.ReplaceAllString(urlText, "")
 					} else if link.Scheme == "mailto:" && !MAILTO_RE.MatchString(urlText) {
@@ -216,7 +227,7 @@ func ILinkify(
 
 					if pos > lastPos {
 						token = GenerateToken("text", "", 0)
-						token.Content = text[lastPos:pos]
+						token.Content = Slice(text, lastPos, pos)
 						token.Level = level
 						nodes = append(nodes, &token)
 					}
@@ -237,6 +248,7 @@ func ILinkify(
 					nodes = append(nodes, &token)
 
 					token = GenerateToken("text", "", 0)
+
 					token.Content = urlText
 					token.Level = level
 					nodes = append(nodes, &token)
@@ -251,9 +263,10 @@ func ILinkify(
 
 					lastPos = link.End
 				}
-				if lastPos < len(text) {
+				if lastPos < utf8.RuneCountInString(text) {
 					token = GenerateToken("text", "", 0)
-					token.Content = text[lastPos:]
+					token.Content = Slice(text, lastPos, utf8.RuneCountInString(text))
+					//text[lastPos:]
 					token.Level = level
 					nodes = append(nodes, &token)
 				}
@@ -263,7 +276,6 @@ func ILinkify(
 			}
 		}
 	}
-
 	return true
 }
 

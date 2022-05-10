@@ -1,17 +1,21 @@
 package pkg
 
-import (
-	"fmt"
-)
-
 func InlineCore(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bool) bool {
-	fmt.Println("Running Inline Core")
-	for idx := 0; idx < len(state.Tokens); idx++ {
-		if state.Tokens[idx].Type == "inline" {
-			fmt.Println("Processing Inline Token: ")
-			//utils.PrettyPrint(state.Tokens)
-			state.Md.Inline.Parse(state.Tokens[idx].Content, &state.Md, state.Env, &state.Tokens[idx].Children)
+	//fmt.Println("Running Inline Core")
+
+	for idx := 0; idx < len(*state.Tokens); idx++ {
+		if (*state.Tokens)[idx].Type == "inline" {
+			//fmt.Println("Processing Inline Token: ")
+			//utils.PrettyPrint((*state.Tokens)[idx].Children)
+			state.Md.Inline.Parse((*state.Tokens)[idx].Content, &state.Md, state.Env, &(*state.Tokens)[idx].Children)
+			//utils.PrettyPrint((*state.Tokens)[idx].Children)
+
+			//fmt.Println("================================================")
 		}
 	}
+	//utils.PrettyPrint(state.Tokens)
+
+	//fmt.Println(len((*state.Tokens)[1].Children))
+	//utils.PrettyPrint((*state.Tokens)[1].Children)
 	return true
 }

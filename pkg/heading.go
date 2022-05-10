@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -18,7 +17,7 @@ func Heading(
 }
 
 func (state *StateBlock) Heading(startLine int, _ int, silent bool) bool {
-	fmt.Println("Processing Heading")
+	//fmt.Println("Processing Heading")
 
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]

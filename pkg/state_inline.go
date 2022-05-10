@@ -1,5 +1,7 @@
 package pkg
 
+import "unicode/utf8"
+
 type TokenMeta struct {
 	Delimiters []Delimiter
 }
@@ -46,7 +48,7 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env Env, outTo
 	state.TokensMeta = []TokenMeta{}
 
 	state.Pos = 0
-	state.PosMax = len(state.Src)
+	state.PosMax = utf8.RuneCountInString(state.Src)
 	state.Level = 0
 	state.Pending = ""
 	state.PendingLevel = 0
@@ -71,7 +73,7 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env Env, outTo
 }
 
 func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
-	if len(state.Pending) > 0 {
+	if utf8.RuneCountInString(state.Pending) > 0 {
 		state.PushPending()
 	}
 

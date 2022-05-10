@@ -1,15 +1,15 @@
 package pkg
 
 import (
-	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 func (state *StateBlock) GetLine(line int) string {
 	pos := state.BMarks[line] + state.TShift[line]
 	max := state.EMarks[line]
 
-	return state.Src[pos:max]
+	return Slice(state.Src, pos, max)
 }
 
 func (state *StateBlock) EscapedSplit(str string) []string {
@@ -17,7 +17,7 @@ func (state *StateBlock) EscapedSplit(str string) []string {
 	pos := 0
 	lastPos := 0
 	current := ""
-	max := len(str)
+	max := utf8.RuneCountInString(str)
 	isEscaped := false
 
 	ch := CharCodeAt(state.Src, pos)
@@ -60,7 +60,7 @@ func Table(
 
 func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
-	fmt.Println("Processing Table")
+	//fmt.Println("Processing Table")
 	// should have at least two lines
 	if startLine+2 > endLine {
 		return false
@@ -127,7 +127,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 	for i := 0; i < len(columns); i++ {
 		t := strings.TrimSpace(columns[i])
-		if len(t) == 0 {
+		if utf8.RuneCountInString(t) == 0 {
 			// allow empty columns before and after table, but not in between columns;
 			// e.g. allow ` |---| `, disallow ` ---||--- `
 			if i == 0 || i == len(columns)-1 {
@@ -141,7 +141,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 			return false
 		}
 
-		if CharCodeAt(t, len(t)-1) == 0x3A {
+		if CharCodeAt(t, utf8.RuneCountInString(t)-1) == 0x3A {
 			if CharCodeAt(t, 0) == 0x3A {
 				aligns = append(aligns, "center")
 			} else {
@@ -202,7 +202,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 	for i := 0; i < len(columns); i++ {
 		token = state.Push("th_open", "th", 1)
-		if len(aligns[i]) > 0 {
+		if utf8.RuneCountInString(aligns[i]) > 0 {
 			token.Attrs = []Attribute{
 				{
 					Name:  "style",
@@ -240,7 +240,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 			break
 		}
 		lineText = strings.TrimSpace(state.GetLine(nextLine))
-		if len(lineText) == 0 {
+		if utf8.RuneCountInString(lineText) == 0 {
 			break
 		}
 		if state.SCount[nextLine]-state.BlkIndent >= 4 {
@@ -265,7 +265,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 		for i := 0; i < columnCount; i++ {
 			token = state.Push("td_open", "td", 1)
-			if len(aligns[i]) > 0 {
+			if utf8.RuneCountInString(aligns[i]) > 0 {
 				token.Attrs = []Attribute{
 					{
 						Name:  "style",
@@ -276,7 +276,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 			token = state.Push("inline", "", 0)
 
-			if len(columns[i]) > 0 {
+			if utf8.RuneCountInString(columns[i]) > 0 {
 				token.Content = strings.TrimSpace(columns[i])
 			} else {
 				token.Content = ""

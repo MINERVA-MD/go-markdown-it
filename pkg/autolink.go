@@ -1,5 +1,10 @@
 package pkg
 
+import (
+	"fmt"
+	"unicode/utf8"
+)
+
 func AutoLink(
 	_ *StateCore,
 	_ *StateBlock,
@@ -37,10 +42,11 @@ func (state *StateInline) AutoLink(silent bool) bool {
 		}
 	}
 
-	url := state.Src[start+1 : pos]
+	url := Slice(state.Src, start+1, pos)
 
 	if AUTOLINK_RE.MatchString(url) {
 		fullUrl := state.Md.NormalizeLink(url)
+		fmt.Println(fullUrl)
 
 		if !state.Md.ValidateLink(fullUrl) {
 			return false
@@ -54,6 +60,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 					Value: fullUrl,
 				},
 			}
+
 			token.Markup = "autolink"
 			token.Info = "auto"
 
@@ -65,7 +72,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 			token.Info = "auto"
 		}
 
-		state.Pos += len(url) + 2
+		state.Pos += utf8.RuneCountInString(url) + 2
 		return true
 	}
 
@@ -94,7 +101,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 			token.Info = "auto"
 		}
 
-		state.Pos += len(url) + 2
+		state.Pos += utf8.RuneCountInString(url) + 2
 		return true
 	}
 
