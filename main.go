@@ -14,5 +14,6 @@ func main() {
 	fmt.Println(found)
 
 	var mdurl = pkg.MdUrl{}
-	utils.PrettyPrint(mdurl.Parse("http://example.com?find=\\*", true))
+	var url = mdurl.Parse("http://example.com?find=\\*", true)
+	utils.PrettyPrint(url)
 }
