@@ -119,6 +119,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	oldParentType := state.ParentType
 	state.ParentType = "blockquote"
 
+	//fmt.Println(oldParentType, oldBSCount, oldTShift, oldSCount, lastLineEmpty, pos, initial, adjustTab, spaceAfterMarker)
 	// Search the end of the block
 	//
 	// Block ends with either:
@@ -157,9 +158,11 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 			break
 		}
 
-		pos++
+		isAlreadyIncremented := false
 		if CharCodeAt(state.Src, pos) == 0x3E /* > */ && !isOutdented {
 			// This line is inside the blockquote.
+			pos++
+			isAlreadyIncremented = true
 
 			// set offset past spaces and ">"
 			offset = state.SCount[nextLine] + 1
@@ -233,6 +236,10 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 			oldTShift = append(oldTShift, state.TShift[nextLine])
 			state.TShift[nextLine] = pos - state.BMarks[nextLine]
 			continue
+		}
+
+		if !isAlreadyIncremented {
+			pos++
 		}
 
 		// Case 2: line is not inside the blockquote, and the last line was empty.

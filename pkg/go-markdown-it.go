@@ -8,17 +8,13 @@ import (
 	"unicode/utf8"
 )
 
-//type Config struct {
-//	Default    types.Preset
-//	Zero       types.Preset
-//	Commonmark types.Preset
-//}
-
 var config = map[string]Preset{
 	"default":    DefaultPresets,
 	"zero":       ZeroPresets,
 	"commonmark": CommonmarkPresets,
 }
+
+var RECODE_HOSTNAME_FOR = []string{"http:", "https:", "mailto:"}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -46,13 +42,52 @@ func ValidateLink(url string) bool {
 ////////////////////////////////////////////////////////////////////////////////
 
 func NormalizeLink(url string) string {
-	// TODO
-	return url
+	mdUrl := MdUrl{}
+	var parsed = mdUrl.Parse(url, true)
+
+	//utils.PrettyPrint(parsed)
+
+	if utf8.RuneCountInString(parsed.Hostname) > 0 {
+		// Encode hostnames in urls like:
+		// `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
+		//
+		// We don't encode unknown schemas, because it's likely that we encode
+		// something we shouldn't (e.g. `skype:name` treated as `skype:host`)
+		//
+		if utf8.RuneCountInString(parsed.Protocol) == 0 ||
+			slices.Contains(RECODE_HOSTNAME_FOR, parsed.Protocol) {
+			punycode := Punycode{}
+			ascii := punycode.ToASCII(parsed.Hostname)
+
+			parsed.Hostname = ascii
+		}
+	}
+
+	ret := mdUrl.Encode(mdUrl.Format(parsed), "", true)
+	return ret
 }
 
 func NormalizeLinkText(url string) string {
-	// TODO
-	return url
+	mdUrl := &MdUrl{}
+	var parsed = mdUrl.Parse(url, true)
+
+	if utf8.RuneCountInString(parsed.Hostname) > 0 {
+		// Encode hostnames in urls like:
+		// `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
+		//
+		// We don't encode unknown schemas, because it's likely that we encode
+		// something we shouldn't (e.g. `skype:name` treated as `skype:host`)
+		//
+		if utf8.RuneCountInString(parsed.Protocol) == 0 ||
+			slices.Contains(RECODE_HOSTNAME_FOR, parsed.Protocol) {
+			punycode := &Punycode{}
+			unicode := punycode.ToUnicode(parsed.Hostname)
+
+			parsed.Hostname = unicode
+		}
+	}
+	// add '%' to exclude list
+	return mdUrl.Decode(mdUrl.Format(parsed), defaultDecodeChars+"%")
 }
 
 type MarkdownIt struct {
@@ -263,10 +298,11 @@ func (md *MarkdownIt) Use(_ string) {
 
 }
 
-func (md *MarkdownIt) Parse(src string, env Env) []*Token {
+func (md *MarkdownIt) Parse(src string, env *Env) []*Token {
 	var state = &StateCore{}
 	state.StateCore(src, md, env)
 
+	// "text"
 	md.Core.Process(state)
 	//fmt.Println(len((*state.Tokens)[1].Children))
 	//utils.PrettyPrint(state.Tokens)
@@ -277,12 +313,12 @@ func (md *MarkdownIt) Parse(src string, env Env) []*Token {
 
 //Inline Tokenization
 
-func (md *MarkdownIt) Render(src string, env Env) string {
+func (md *MarkdownIt) Render(src string, env *Env) string {
 	tokens := md.Parse(src, env)
 	return md.Renderer.Render(tokens, md.Options, env)
 }
 
-func (md *MarkdownIt) ParseInline(src string, env Env) []*Token {
+func (md *MarkdownIt) ParseInline(src string, env *Env) []*Token {
 	var state = &StateCore{}
 	state.StateCore(src, md, env)
 	state.InlineMode = true
@@ -294,7 +330,7 @@ func (md *MarkdownIt) ParseInline(src string, env Env) []*Token {
 	return *state.Tokens
 }
 
-func (md *MarkdownIt) RenderInline(src string, env Env) string {
+func (md *MarkdownIt) RenderInline(src string, env *Env) string {
 	tokens := md.ParseInline(src, env)
 	return md.Renderer.Render(tokens, md.Options, env)
 }

@@ -1,9 +1,11 @@
 package pkg
 
-import "unicode/utf8"
+import (
+	"unicode/utf8"
+)
 
 type TokenMeta struct {
-	Delimiters []Delimiter
+	Delimiters *[]*Delimiter
 }
 
 type Delimiter struct {
@@ -23,8 +25,8 @@ type DelimScan struct {
 
 type StateInline struct {
 	Src              string
-	Md               MarkdownIt
-	Env              Env
+	Md               *MarkdownIt
+	Env              *Env
 	Pos              int
 	PosMax           int
 	Pending          string
@@ -32,18 +34,19 @@ type StateInline struct {
 	PendingLevel     int
 	Tokens           *[]*Token
 	Cache            map[int]int
-	Delimiters       []Delimiter
-	PrevDelimiters   [][]Delimiter
-	Backticks        []int
+	Delimiters       *[]*Delimiter
+	PrevDelimiters   []*[]*Delimiter
+	Backticks        map[int]int
 	BackTicksScanned bool
 	LinkLevel        int
 	TokensMeta       []TokenMeta
+	//[]TokenMeta
 }
 
-func (state *StateInline) StateInline(src string, md *MarkdownIt, env Env, outTokens *[]*Token) {
+func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outTokens *[]*Token) {
 	state.Src = src
 	state.Env = env
-	state.Md = *md
+	state.Md = md
 	state.Tokens = outTokens
 	state.TokensMeta = []TokenMeta{}
 
@@ -58,13 +61,13 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env Env, outTo
 	state.Cache = map[int]int{}
 
 	// List of emphasis-like delimiters for current tag
-	state.Delimiters = []Delimiter{}
+	state.Delimiters = &[]*Delimiter{}
 
 	// Stack of delimiter lists for upper level tags
-	state.PrevDelimiters = [][]Delimiter{}
+	state.PrevDelimiters = []*[]*Delimiter{}
 
 	// backtick length => last seen position
-	state.Backticks = []int{}
+	state.Backticks = map[int]int{}
 	state.BackTicksScanned = false
 
 	// Counter used to disable inline linkify-it execution
@@ -73,6 +76,13 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env Env, outTo
 }
 
 func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
+	//utils.PrettyPrint()
+	//fmt.Println(_type, tag, nesting)
+	//fmt.Println("Before")
+	//fmt.Printf("%q %q %d", _type, tag, nesting)
+	//fmt.Println("")
+	//utils.PrettyPrint(state.TokensMeta)
+
 	if utf8.RuneCountInString(state.Pending) > 0 {
 		state.PushPending()
 	}
@@ -90,16 +100,41 @@ func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
 	if nesting > 0 {
 		// Opening Tag
 		state.Level++
-		state.PrevDelimiters = append(state.PrevDelimiters, state.Delimiters)
-		state.Delimiters = []Delimiter{}
+
+		oldDelimiters := Copy(*state.Delimiters)
+		state.PrevDelimiters = append(state.PrevDelimiters, &oldDelimiters)
+
+		state.Delimiters = &[]*Delimiter{}
 		tokenMeta = TokenMeta{Delimiters: state.Delimiters}
+		//TokenMeta{Delimiters: state.Delimiters}
 	}
 
 	state.PendingLevel = state.Level
 	*state.Tokens = append(*state.Tokens, &token)
+
 	state.TokensMeta = append(state.TokensMeta, tokenMeta)
+	//utils.PrettyPrint(tokenMeta)
+	//utils.PrettyPrint(state.TokensMeta)
 
 	return &token
+}
+
+func Copy[T any](s []*T) []*T {
+	c := make([]*T, len(s))
+	for i, p := range s {
+
+		if p == nil {
+			// Skip to next for nil source pointer
+			continue
+		}
+
+		// Create shallow copy of source element
+		v := *p
+
+		// Assign address of copy to destination.
+		c[i] = &v
+	}
+	return c
 }
 
 func (state *StateInline) PushPending() *Token {
@@ -110,6 +145,7 @@ func (state *StateInline) PushPending() *Token {
 	*state.Tokens = append(*state.Tokens, &token)
 	state.Pending = ""
 
+	//utils.PrettyPrint(token)
 	return &token
 }
 

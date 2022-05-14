@@ -7,7 +7,7 @@ func InlineCore(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _
 		if (*state.Tokens)[idx].Type == "inline" {
 			//fmt.Println("Processing Inline Token: ")
 			//utils.PrettyPrint((*state.Tokens)[idx].Children)
-			state.Md.Inline.Parse((*state.Tokens)[idx].Content, &state.Md, state.Env, &(*state.Tokens)[idx].Children)
+			state.Md.Inline.Parse((*state.Tokens)[idx].Content, state.Md, state.Env, &(*state.Tokens)[idx].Children)
 			//utils.PrettyPrint((*state.Tokens)[idx].Children)
 
 			//fmt.Println("================================================")

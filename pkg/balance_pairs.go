@@ -14,7 +14,9 @@ func BalancePairs(
 
 func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 
-	var delimiters []Delimiter
+	//fmt.Println("Processing Balance Pairs")
+
+	var delimiters *[]*Delimiter
 
 	if delim == "delimiters" {
 		delimiters = state.Delimiters
@@ -22,7 +24,7 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 		delimiters = state.TokensMeta[idx].Delimiters
 	}
 
-	max := len(delimiters)
+	max := len(*delimiters)
 
 	if max == 0 {
 		return
@@ -35,7 +37,7 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 	openersBottom := map[rune][]int{}
 
 	for closerIdx = 0; closerIdx < max; closerIdx++ {
-		closer := delimiters[closerIdx]
+		closer := (*delimiters)[closerIdx]
 
 		jumps = append(jumps, 0)
 
@@ -43,7 +45,7 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 		//  - they have adjacent tokens
 		//  - AND markers are the same
 
-		if delimiters[headerIdx].Marker != closer.Marker ||
+		if (*delimiters)[headerIdx].Marker != closer.Marker ||
 			lastTokenIdx != closer.Token-1 {
 			headerIdx = closerIdx
 		}
@@ -75,11 +77,15 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 
 		minOpenerIdx := openersBottom[closer.Marker][openIdx]
 		openerIdx := headerIdx - jumps[headerIdx] - 1
+
 		newMinOpenerIdx := openerIdx
 
+		//fmt.Println(lastTokenIdx, minOpenerIdx)
+		//utils.PrettyPrint(delimiters)
 		for ; openerIdx > minOpenerIdx; openerIdx -= jumps[openerIdx] + 1 {
-			opener := delimiters[openerIdx]
+			opener := (*delimiters)[openerIdx]
 
+			//utils.PrettyPrint(opener)
 			if opener.Marker != closer.Marker {
 				continue
 			}
@@ -108,21 +114,23 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 					// sure algorithm has linear complexity (see *_*_*_*_*_... case).
 
 					lastJump := 0
-					if openerIdx > 0 && !delimiters[openerIdx-1].Open {
+					if openerIdx > 0 && !(*delimiters)[openerIdx-1].Open {
 						lastJump = jumps[openerIdx-1] + 1
 					}
 
 					jumps[closerIdx] = closerIdx - openerIdx + lastJump
 					jumps[openerIdx] = lastJump
 
-					delimiters[openerIdx].Open = false
-					delimiters[openerIdx].End = closerIdx
-					delimiters[openerIdx].Close = false
+					(*delimiters)[closerIdx].Open = false
+					(*delimiters)[openerIdx].End = closerIdx
+					(*delimiters)[openerIdx].Close = false
 
 					newMinOpenerIdx = -1
 					// treat next token as start of run,
 					// it optimizes skips in **<...>**a**<...>** pathological case
 					lastTokenIdx = -2
+
+					//utils.PrettyPrint(opener)
 					break
 				}
 			}
@@ -148,6 +156,8 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 			openersBottom[closer.Marker][openIdx] = newMinOpenerIdx
 		}
 	}
+
+	//utils.PrettyPrint(delimiters)
 }
 
 func (state *StateInline) LinkPairs() {
@@ -156,7 +166,7 @@ func (state *StateInline) LinkPairs() {
 	state.ProcessDelimiters("delimiters", -1)
 
 	for idx, tokenMeta := range tokensMeta {
-		if len(tokenMeta.Delimiters) > 0 {
+		if tokenMeta.Delimiters != nil && len(*tokenMeta.Delimiters) > 0 {
 			state.ProcessDelimiters("metaDelimiters", idx)
 		}
 	}

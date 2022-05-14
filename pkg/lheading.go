@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -92,6 +93,7 @@ func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 
 	if level == 0 {
 		// Didn't find valid underline
+		//fmt.Println("Returning false 2")
 		return false
 	}
 
@@ -99,7 +101,7 @@ func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 
 	state.Line = nextLine + 1
 
-	token := state.Push("heading_open", "h"+string(rune(level)), 1)
+	token := state.Push("heading_open", "h"+strconv.Itoa(level), 1)
 	token.Markup = string(marker)
 	token.Map = []int{startLine, state.Line}
 
@@ -108,7 +110,7 @@ func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 	token.Map = []int{startLine, state.Line - 1}
 	token.Children = []*Token{}
 
-	token = state.Push("heading_close", "h"+string(rune(level)), -1)
+	token = state.Push("heading_close", "h"+strconv.Itoa(level), -1)
 	token.Markup = string(marker)
 
 	state.ParentType = oldParentType

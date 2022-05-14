@@ -76,7 +76,7 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 			}
 			if code == 0x3E {
 				result.Pos = pos + 1
-				result.Str = UnescapedAll(str[start+1 : pos])
+				result.Str = UnescapeAll(str[start+1 : pos])
 				result.Ok = true
 				return result
 			}
@@ -139,7 +139,7 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 		return result
 	}
 
-	result.Str = UnescapedAll(str[start:pos])
+	result.Str = UnescapeAll(Slice(str, start, pos))
 	result.Lines = lines
 	result.Pos = pos
 	result.Ok = true
@@ -181,7 +181,7 @@ func (h *Helpers) ParseLinkTitle(str string, pos int, max int) LinkResult {
 		if code == marker {
 			result.Pos = pos + 1
 			result.Lines = lines
-			result.Str = UnescapedAll(str[start+1 : pos])
+			result.Str = UnescapeAll(str[start+1 : pos])
 			result.Ok = true
 			return result
 		} else if code == 0x28 /* ( */ && marker == 0x29 {

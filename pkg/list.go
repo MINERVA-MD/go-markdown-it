@@ -213,7 +213,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 				{
 					Name: "start",
 					// TODO: may need to check this
-					Value: string(markerValue),
+					Value: strconv.Itoa(markerValue),
 				},
 			}
 		}

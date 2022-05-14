@@ -8,6 +8,7 @@ func FragmentsJoin(
 	_ int,
 	_ bool,
 ) bool {
+	//fmt.Println("Processing FragmentsJoin")
 	state.FragmentsJoin()
 	return true
 }

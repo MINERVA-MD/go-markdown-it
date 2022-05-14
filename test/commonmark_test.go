@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"testing"
 )
@@ -99,12 +100,14 @@ func TestCommonMark(t *testing.T) {
 	} else {
 		// Process Results
 		var md = &pkg.MarkdownIt{}
-		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
 
 		var specs []Spec
 		_ = json.Unmarshal([]byte(specsJson), &specs)
 
-		specs = GetSpec(specs, 20)
+		// code_inline
+		num := -1
+		specs = GetSpec(specs, num)
 
 		total := 0
 		passed := 0
@@ -113,10 +116,19 @@ func TestCommonMark(t *testing.T) {
 		for _, spec := range specs {
 			specTitle := "Spec: " + strconv.Itoa(spec.Example) + "| " + spec.Section
 			t.Run(specTitle, func(t *testing.T) {
-				defer func() {
-					recover()
-				}()
-				ok := assert.Equal(t, Normalize(spec.Html), md.Render(spec.Markdown, pkg.Env{}))
+				if num == -1 {
+					defer func() {
+						if err := recover(); err != nil {
+							passed--
+							failed++
+							fmt.Println("Recovered in f", err)
+							fmt.Println("stacktrace from test: " + specTitle + "\n" + string(debug.Stack()))
+							t.Fail()
+						}
+					}()
+				}
+
+				ok := assert.Equal(t, Normalize(spec.Html), md.Render(spec.Markdown, &pkg.Env{}))
 
 				if ok {
 					passed++

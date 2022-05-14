@@ -57,14 +57,27 @@ func (state *StateInline) Backtick(silent bool) bool {
 	matchStart := pos
 	matchEnd := pos
 
+	//fmt.Println(start, ch, pos, marker, openerLength, matchStart, matchEnd)
+	//fmt.Println(state.Src, matchEnd, strings.Index(state.Src, "`"))
+
+	//fmt.Println(strings.Index(" b `", "`"))
+
+	//fmt.Println(state.Src, matchEnd, strings.Index(state.Src, "`"))
+	//fmt.Println(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)))
+	//fmt.Println(IndexOfSubstring(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`"))
+	//fmt.Println(utf8.RuneCountInString(state.Src))
+	//fmt.Println(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)))
+	//fmt.Println(utf8.RuneCountInString(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src))))
+
+	//fmt.Println(state.Src, strings.Index(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`"))
 	// Nothing found in the cache, scan until the end of the line (or until marker is found)
 	for {
-		// TODO: Replace with Slice function
-		matchStart = strings.Index(state.Src[matchEnd:], "`")
-
+		matchStart = IndexOfSubstring(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`")
 		if matchStart == -1 {
 			break
 		}
+
+		//fmt.Println(matchStart, matchEnd)
 
 		matchStart = matchStart + matchEnd
 		matchEnd = matchStart + 1
@@ -81,6 +94,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 				token := state.Push("code_inline", "code", 0)
 				token.Markup = marker
 				token.Content = Slice(state.Src, pos, matchStart)
+				//fmt.Println(state.Src, pos, matchStart)
 				token.Content = NEWLINES_RE.ReplaceAllString(token.Content, " ")
 				token.Content = BACKTICK_RE.ReplaceAllString(token.Content, "$1")
 			}
@@ -104,4 +118,22 @@ func (state *StateInline) Backtick(silent bool) bool {
 	//fmt.Println(start, ch, pos, marker, openerLength)
 
 	return true
+}
+
+func IndexOfSubstring(s string, substr string) int {
+
+	byteIndex := strings.Index(s, substr)
+	if byteIndex < 0 {
+		return -1
+	}
+	return utf8.RuneCountInString(s[:byteIndex])
+}
+
+func LastIndexOfSubstring(s string, substr string) int {
+
+	byteIndex := strings.LastIndex(s, substr)
+	if byteIndex < 0 {
+		return -1
+	}
+	return utf8.RuneCountInString(s[:byteIndex])
 }

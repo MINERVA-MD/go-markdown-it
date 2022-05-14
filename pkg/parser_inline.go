@@ -182,13 +182,16 @@ func (i *ParserInline) SkipToken(state *StateInline) {
 }
 
 func (i *ParserInline) Tokenize(state *StateInline) {
-	_rules := i.Ruler.GetRules("")
+	var idx int
+	rules := i.Ruler.GetRules("")
+	var n = len(rules)
 	end := state.PosMax
 	maxNesting := state.Md.Options.MaxNesting
 
 	//fmt.Println("Inline Tokenization")
 
 	for state.Pos < end {
+		//fmt.Println(end)
 		// Try all possible rules.
 		// On success, rule should:
 		//
@@ -198,17 +201,25 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 
 		var ok bool
 		if state.Level < maxNesting {
-			for _, rule := range _rules {
+			for idx = 0; idx < n; idx++ {
 				//fmt.Println("Rule: ", idx)
-				ok = rule(nil, nil, state, 0, 0, false)
-				//fmt.Println(ok)
+
+				//fmt.Println("Rule: ", idx, "| ", state.PosMax, end)
+				//fmt.Println("Before", "i: ", idx, "| pos: ", state.Pos)
+				ok = rules[idx](nil, nil, state, 0, 0, false)
+				//utils.PrettyPrint(state.Delimiters)
+				//utils.PrettyPrint(state.TokensMeta)
+				//fmt.Println("After", "i: ", idx, "| ok =", ok, "| pos: ", state.Pos)
+				//fmt.Println(state.PosMax, end)
 				//utils.PrettyPrint(state.Tokens)
+				//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 				if ok {
 					//fmt.Println("Breaking")
 					break
 				}
 			}
 		}
+		//fmt.Println(end)
 
 		if ok {
 			if state.Pos >= end {
@@ -217,9 +228,11 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 			continue
 		}
 
+		//fmt.Println(state.Pos)
 		// TODO: Double check this indexing is Unicode compliant
-		state.Pending += string([]rune(state.Src)[state.Pos])
+		state.Pending += string(CharCodeAt(state.Src, state.Pos))
 		state.Pos++
+		//fmt.Println(state.Pos)
 	}
 
 	if utf8.RuneCountInString(state.Pending) > 0 {
@@ -227,7 +240,7 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 	}
 }
 
-func (i *ParserInline) Parse(src string, md *MarkdownIt, env Env, outTokens *[]*Token) {
+func (i *ParserInline) Parse(src string, md *MarkdownIt, env *Env, outTokens *[]*Token) {
 	if utf8.RuneCountInString(src) == 0 {
 		return
 	}
@@ -240,12 +253,18 @@ func (i *ParserInline) Parse(src string, md *MarkdownIt, env Env, outTokens *[]*
 	i.Tokenize(state)
 
 	//fmt.Println(len(*state.Tokens))
+	//utils.PrettyPrint(state.Delimiters)
+	//utils.PrettyPrint(state.TokensMeta)
 	//utils.PrettyPrint(state.Tokens)
 
 	_rules := i.Ruler2.GetRules("")
 
+	//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	for _, rule := range _rules {
 		_ = rule(nil, nil, state, 0, 0, false)
+		//utils.PrettyPrint(state.Delimiters)
+		//utils.PrettyPrint(state.Tokens)
+		//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	}
 
 	//*outTokens = *state.Tokens

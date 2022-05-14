@@ -85,7 +85,7 @@ func (r *Renderer) RenderToken(tokens []*Token, idx int, options Options) string
 	return result
 }
 
-func (r *Renderer) RenderInline(tokens []*Token, options Options, env Env) string {
+func (r *Renderer) RenderInline(tokens []*Token, options Options, env *Env) string {
 	var result string
 
 	for idx, token := range tokens {
@@ -101,6 +101,7 @@ func (r *Renderer) RenderInline(tokens []*Token, options Options, env Env) strin
 func (r *Renderer) RenderInlineAsText(tokens []*Token, options Options, env Env) string {
 	var result = ""
 
+	//utils.PrettyPrint(tokens)
 	for _, token := range tokens {
 		if token.Type == "text" {
 			result += token.Content
@@ -113,9 +114,10 @@ func (r *Renderer) RenderInlineAsText(tokens []*Token, options Options, env Env)
 	return result
 }
 
-func (r *Renderer) Render(tokens []*Token, options Options, env Env) string {
+func (r *Renderer) Render(tokens []*Token, options Options, env *Env) string {
 	var result = ""
 
+	//utils.PrettyPrint(tokens)
 	for idx, token := range tokens {
 		if token.Type == "inline" {
 			//fmt.Println("Attempting to render Inline token " + token.Content)
@@ -131,7 +133,7 @@ func (r *Renderer) Render(tokens []*Token, options Options, env Env) string {
 	return result
 }
 
-func (r *Renderer) RenderRule(Type string, tokens []*Token, idx int, options Options, env Env) string {
+func (r *Renderer) RenderRule(Type string, tokens []*Token, idx int, options Options, env *Env) string {
 	switch Type {
 	case "code_inline":
 		return r.Rules.CodeInline(tokens, idx, options, env, r)
@@ -143,7 +145,7 @@ func (r *Renderer) RenderRule(Type string, tokens []*Token, idx int, options Opt
 		return r.Rules.Fence(tokens, idx, options, env, r)
 
 	case "image":
-		return r.Rules.Image(tokens, idx, options, env, r)
+		return r.Rules.Image(tokens, idx, options, *env, r)
 
 	case "hardbreak":
 		return r.Rules.Hardbreak(options)
@@ -199,12 +201,12 @@ func (rules Rules) Hardbreak(options Options) string {
 func (rules Rules) Image(tokens []*Token, idx int, options Options, env Env, renderer *Renderer) string {
 	var token = tokens[idx]
 	var attrIdx = token.AttrIndex("alt")
-	token.Attrs[attrIdx].Value = renderer.RenderInlineAsText(tokens, options, env)
+	token.Attrs[attrIdx].Value = renderer.RenderInlineAsText(token.Children, options, env)
 
 	return renderer.RenderToken(tokens, idx, options)
 }
 
-func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, renderer *Renderer) string {
+func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ *Env, renderer *Renderer) string {
 
 	var info string
 	var arr []string
@@ -217,15 +219,26 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 	var token = tokens[idx]
 
 	if utf8.RuneCountInString(token.Info) > 0 {
-		info = strings.TrimSpace(token.Info)
+		info = UnescapeAll(token.Info)
+		info = strings.TrimSpace(info)
 	} else {
 		info = ""
 	}
 
+	//utils.PrettyPrint(info)
+
 	if utf8.RuneCountInString(info) > 0 {
-		arr = SPACE_RE.Split(info, 2)
+		arr = SPACE_RE.Split(info, -1)
 		langName = arr[0]
-		langAttrs = arr[1]
+
+		//fmt.Println(info)
+
+		if len(arr) > 2 {
+			langAttrs = strings.Join(arr[2:], "")
+		} else {
+			langAttrs = ""
+		}
+
 	}
 
 	if options.Highlight != nil {
@@ -245,10 +258,11 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 
 	if utf8.RuneCountInString(info) > 0 {
 		var i = token.AttrIndex("class")
+
 		if token.Attrs != nil {
 			copy(tmpAttrs, token.Attrs)
 		} else {
-			token.Attrs = []Attribute{}
+			tmpAttrs = []Attribute{}
 		}
 
 		if i < 0 {
@@ -262,9 +276,10 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 				Name:  tmpAttrs[i].Name,
 				Value: tmpAttrs[i].Value,
 			}
+			tmpAttrs[i].Value += " " + options.LangPrefix + langName
 		}
-		tmpAttrs[i].Value += " " + options.LangPrefix + langName
 
+		//utils.PrettyPrint(tmpAttrs)
 		tmpToken = &Token{Attrs: tmpAttrs}
 
 		return "<pre><code" + renderer.RenderAttrs(tmpToken) + ">" +
@@ -277,7 +292,7 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ Env, rende
 		"</code></pre>\n"
 }
 
-func (rules Rules) CodeBlock(tokens []*Token, idx int, _ Options, _ Env, renderer *Renderer) string {
+func (rules Rules) CodeBlock(tokens []*Token, idx int, _ Options, _ *Env, renderer *Renderer) string {
 	var token = tokens[idx]
 
 	return "<pre" + renderer.RenderAttrs(token) + "><code>" +
@@ -285,7 +300,7 @@ func (rules Rules) CodeBlock(tokens []*Token, idx int, _ Options, _ Env, rendere
 		"</code></pre>\n"
 }
 
-func (rules Rules) CodeInline(tokens []*Token, idx int, _ Options, _ Env, renderer *Renderer) string {
+func (rules Rules) CodeInline(tokens []*Token, idx int, _ Options, _ *Env, renderer *Renderer) string {
 	var token = tokens[idx]
 
 	return "<code" + renderer.RenderAttrs(token) + ">" +

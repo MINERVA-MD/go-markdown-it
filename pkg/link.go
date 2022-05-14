@@ -27,6 +27,8 @@ func (state *StateInline) Link(silent bool) bool {
 	parseReference := true
 	var res LinkResult
 
+	//fmt.Println("Entered Link")
+
 	if CharCodeAt(state.Src, state.Pos) != 0x5B /* [ */ {
 		return false
 	}
@@ -66,6 +68,8 @@ func (state *StateInline) Link(silent bool) bool {
 		start = pos
 		res = state.Md.Helpers.ParseLinkDestination(state.Src, pos, state.PosMax)
 
+		//fmt.Println(state.Src, pos, state.PosMax)
+		//utils.PrettyPrint(res)
 		if res.Ok {
 			href = state.Md.NormalizeLink(res.Str)
 
@@ -111,6 +115,8 @@ func (state *StateInline) Link(silent bool) bool {
 
 	if parseReference {
 		// Link reference
+
+		//utils.PrettyPrint(state.Env.References)
 		if state.Env.References == nil {
 			return false
 		}
@@ -119,8 +125,8 @@ func (state *StateInline) Link(silent bool) bool {
 			start = pos + 1
 			pos = state.Md.Helpers.ParseLinkLabel(state, pos, false)
 			if pos >= 0 {
-				pos++
 				label = Slice(state.Src, start, pos)
+				pos++
 			} else {
 				pos = labelEnd + 1
 			}
@@ -134,12 +140,25 @@ func (state *StateInline) Link(silent bool) bool {
 			label = Slice(state.Src, labelStart, labelEnd)
 		}
 
-		if _, ok := state.Env.References[NormalizeReference(label)]; !ok {
+		//fmt.Println(label, labelStart, labelEnd, NormalizeReference(label))
+		//utils.PrettyPrint(state.Env.References)
+
+		//str = strings.Replace(str, "", "", -1)
+
+		//fmt.Println("1")
+		//fmt.Println("label", label, strings.ToLower(label), strings.ToUpper(strings.ToLower(label)))
+		// TODO: Refactor this into NormalizeReference
+		normalizedReference := NormalizeReference(label)
+		//fmt.Println("Normalized Reference", normalizedReference)
+		if _, ok := state.Env.References[normalizedReference]; !ok {
 			state.Pos = oldPos
 			return false
 		}
 
-		ref := state.Env.References[NormalizeReference(label)]
+		//fmt.Println(label)
+		//fmt.Println("2")
+		//fmt.Println("label", label)
+		ref := state.Env.References[normalizedReference]
 		href = ref.Href
 		title = ref.Title
 	}
@@ -170,6 +189,8 @@ func (state *StateInline) Link(silent bool) bool {
 		state.LinkLevel--
 
 		token = state.Push("link_close", "a", -1)
+
+		//utils.PrettyPrint(state.Delimiters)
 	}
 
 	state.Pos = pos

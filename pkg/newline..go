@@ -40,7 +40,7 @@ func (state *StateInline) Newline(silent bool) bool {
 				}
 
 				state.Pending = Slice(state.Pending, 0, ws)
-				state.Push("softbreak", "br", 0)
+				state.Push("hardbreak", "br", 0)
 			} else {
 				state.Pending = Slice(state.Pending, 0, utf8.RuneCountInString(state.Pending)-1)
 				state.Push("softbreak", "br", 0)

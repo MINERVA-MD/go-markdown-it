@@ -19,6 +19,7 @@ func Escape(
 	silent bool,
 ) bool {
 
+	//fmt.Println("Entered Escape")
 	pos := state.Pos
 	max := state.PosMax
 	initEscapeMap := false
@@ -27,6 +28,10 @@ func Escape(
 		return false
 	}
 	pos++
+
+	if pos >= max {
+		return false
+	}
 
 	ch1 := CharCodeAt(state.Src, pos)
 	var ch2 rune
@@ -67,6 +72,7 @@ func Escape(
 	origStr := `\` + escapedStr
 
 	if !silent {
+		//fmt.Println("Got here~~~~~~~~~~~")
 		token := state.Push("text_special", "", 0)
 
 		//fmt.Println(ch1)

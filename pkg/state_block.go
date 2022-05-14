@@ -8,7 +8,7 @@ import (
 type StateBlock struct {
 	Src        string
 	Md         *MarkdownIt
-	Env        Env
+	Env        *Env
 	Tokens     *[]*Token
 	BMarks     []int
 	EMarks     []int
@@ -26,32 +26,7 @@ type StateBlock struct {
 	Result     string
 }
 
-func StateBlockInit() *StateBlock {
-	state := StateBlock{
-		Src:        "",
-		Md:         &MarkdownIt{},
-		Env:        Env{},
-		Tokens:     nil,
-		BMarks:     nil,
-		EMarks:     nil,
-		TShift:     nil,
-		SCount:     nil,
-		BsCount:    nil,
-		BlkIndent:  0,
-		Line:       0,
-		LineMax:    0,
-		Tight:      false,
-		DDIndent:   0,
-		ListIndent: 0,
-		ParentType: "",
-		Level:      0,
-		Result:     "",
-	}
-
-	return &state
-}
-
-func (state *StateBlock) StateBlock(src string, md *MarkdownIt, env Env, outTokens *[]*Token) {
+func (state *StateBlock) StateBlock(src string, md *MarkdownIt, env *Env, outTokens *[]*Token) {
 
 	state.Src = src
 	state.Md = md
@@ -173,7 +148,7 @@ func (state *StateBlock) SkipSpaces(pos int) int {
 	var max = utf8.RuneCountInString(state.Src)
 	for ; pos < max; pos++ {
 		ch := CharCodeAt(state.Src, pos)
-		if IsSpace(ch) {
+		if !IsSpace(ch) {
 			break
 		}
 	}
@@ -297,5 +272,15 @@ func CharCodeAt(s string, n int) rune {
 }
 
 func Slice(s string, start int, end int) string {
+	//return string([]rune(s)[start:end])
+
+	if end <= start {
+		return ""
+	}
+
+	n := utf8.RuneCountInString(s)
+	if start >= n || end > n {
+		return ""
+	}
 	return string([]rune(s)[start:end])
 }

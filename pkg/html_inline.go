@@ -1,6 +1,8 @@
 package pkg
 
-import "unicode/utf8"
+import (
+	"unicode/utf8"
+)
 
 func IsLinkOpen(str string) bool {
 	return LINK_OPEN.MatchString(str)
@@ -29,13 +31,14 @@ func HtmlInline(
 func (state *StateInline) HtmlInline(silent bool) bool {
 	pos := state.Pos
 
+	//fmt.Println("Entered Html Inline")
 	if !state.Md.Options.Html {
 		return false
 	}
 
 	// Check Start
 	max := state.PosMax
-	if CharCodeAt(state.Src, pos) == 0x3C /* < */ ||
+	if CharCodeAt(state.Src, pos) != 0x3C /* < */ ||
 		pos+2 >= max {
 		return false
 	}

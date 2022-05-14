@@ -60,6 +60,8 @@ var REGEXP_ESCAPE_RE = regexp.MustCompile("[.?*+^$[\\]\\\\(){}|-]")
 //)
 
 var WHITESPACE_RE = regexp.MustCompile("\\s+")
+
+//var BETA_RE = regexp.MustCompile("ẞ")
 var SPACE_RE = regexp.MustCompile("(\\s+)")
 
 var NEWLINES_RE = regexp.MustCompile("\\r\\n?|\\n")
@@ -96,7 +98,7 @@ var HTML_SEQUENCES = []HtmlSequence{
 		Terminate: true,
 	},
 	{
-		Start:     regexp2.MustCompile(HTML_OPEN_CLOSE_TAG_RE.String()+"\\\\s*$", 0),
+		Start:     regexp2.MustCompile(HTML_OPEN_CLOSE_TAG_RE.String()+"\\s*$", 0),
 		End:       regexp2.MustCompile("^$", 0),
 		Terminate: false,
 	},

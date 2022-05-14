@@ -26,10 +26,14 @@ func (state *StateInline) Image(silent bool) bool {
 	max := state.PosMax
 	var res LinkResult
 
+	//fmt.Println("Entered Image")
+	//fmt.Println(state.Src, state.Pos, CharCodeAt(state.Src, state.Pos))
 	if CharCodeAt(state.Src, state.Pos) != 0x21 /* ! */ {
+		//fmt.Println("Returning false 1")
 		return false
 	}
 	if CharCodeAt(state.Src, state.Pos+1) != 0x5B /* [ */ {
+		//fmt.Println("Returning false 2")
 		return false
 	}
 
@@ -38,6 +42,7 @@ func (state *StateInline) Image(silent bool) bool {
 
 	// parser failed to find ']', so it's not a valid link
 	if labelEnd < 0 {
+		//fmt.Println("Returning false 3")
 		return false
 	}
 
@@ -58,6 +63,7 @@ func (state *StateInline) Image(silent bool) bool {
 		}
 
 		if pos >= max {
+			//fmt.Println("Returning false 4")
 			return false
 		}
 
@@ -106,12 +112,14 @@ func (state *StateInline) Image(silent bool) bool {
 
 		if pos >= max || CharCodeAt(state.Src, pos) != 0x29 /* ) */ {
 			state.Pos = oldPos
+			//fmt.Println("Returning false 5")
 			return false
 		}
 		pos++
 	} else {
 		// Link reference
 		if state.Env.References == nil {
+			//fmt.Println("Returning false 6")
 			return false
 		}
 
@@ -119,8 +127,8 @@ func (state *StateInline) Image(silent bool) bool {
 			start = pos + 1
 			pos = state.Md.Helpers.ParseLinkLabel(state, pos, false)
 			if pos >= 0 {
-				pos++
 				label = Slice(state.Src, start, pos)
+				pos++
 			} else {
 				pos = labelEnd + 1
 			}
@@ -134,12 +142,16 @@ func (state *StateInline) Image(silent bool) bool {
 			label = Slice(state.Src, labelStart, labelEnd)
 		}
 
-		if _, ok := state.Env.References[NormalizeReference(label)]; !ok {
+		//utils.PrettyPrint(state.Env.References)
+		normalizeReference := NormalizeReference(label)
+		//fmt.Println(label)
+		if _, ok := state.Env.References[normalizeReference]; !ok {
 			state.Pos = oldPos
+			//fmt.Println("Returning false 7")
 			return false
 		}
 
-		ref := state.Env.References[NormalizeReference(label)]
+		ref := state.Env.References[normalizeReference]
 		href = ref.Href
 		title = ref.Title
 	}
@@ -151,7 +163,7 @@ func (state *StateInline) Image(silent bool) bool {
 		content := Slice(state.Src, labelStart, labelEnd)
 
 		var tokens []*Token
-		state.Md.Inline.Parse(content, &state.Md, state.Env, &tokens)
+		state.Md.Inline.Parse(content, state.Md, state.Env, &tokens)
 
 		token := state.Push("image", "img", 0)
 		token.Attrs = append(token.Attrs,

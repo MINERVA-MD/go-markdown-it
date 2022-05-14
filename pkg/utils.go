@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 func IsValidEntityCode(c rune) bool {
@@ -82,25 +83,33 @@ func UnescapedMD(str string) string {
 	return UNESCAPE_MD_RE.ReplaceAllString(str, "$1")
 }
 
-func UnescapedAll(str string) string {
+func UnescapeAll(str string) string {
+	//fmt.Println(strings.Contains(str, "\\"))
+	//fmt.Println(strings.Contains(str, "&"))
+
 	if !strings.Contains(str, "\\") &&
 		!strings.Contains(str, "&") {
 		return str
 	}
-	return ReplaceAllStringSubmatchFunc(UNESCAPE_ALL_RE, str,
+
+	ret := ReplaceAllStringSubmatchFunc(UNESCAPE_ALL_RE, str,
 		func(groups []string) string {
+
 			var n = len(groups)
 			var match = groups[0]
 
 			if n > 1 {
 				// escaped string
-				return groups[1]
+				if utf8.RuneCountInString(groups[1]) > 0 {
+					return groups[1]
+				}
 			}
 
 			var entity = groups[2]
 			return ReplaceEntityPattern(match, entity)
 
 		})
+	return ret
 }
 
 func ReplaceAllStringSubmatchFunc(re *regexp.Regexp, str string, repl func([]string) string) string {
@@ -265,7 +274,14 @@ func IsMDAsciiPunct(ch rune) bool {
 }
 
 func NormalizeReference(str string) string {
+	//fmt.Println(str)
 	// Trim and collapse whitespace
+	str = strings.TrimSpace(str)
 	str = WHITESPACE_RE.ReplaceAllString(str, " ")
-	return strings.ToUpper(strings.ToLower(str))
+
+	str = strings.ToLower(str)
+	str = strings.ToUpper(str)
+
+	str = strings.Replace(str, "ß", "SS", -1)
+	return str
 }

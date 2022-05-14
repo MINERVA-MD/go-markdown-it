@@ -94,7 +94,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	max = utf8.RuneCountInString(str)
 
 	for pos = 1; pos < max; pos++ {
-		ch := CharCodeAt(state.Src, pos)
+		ch := CharCodeAt(str, pos)
 		if ch == 0x5B {
 			return false
 		} else if ch == 0x5D {
@@ -104,20 +104,20 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 			lines++
 		} else if ch == 0x5C {
 			pos++
-			if pos < max && CharCodeAt(state.Src, pos) == 0x0A {
+			if pos < max && CharCodeAt(str, pos) == 0x0A {
 				lines++
 			}
 		}
 	}
 
-	if labelEnd < 0 || CharCodeAt(state.Src, labelEnd+1) != 0x3A {
+	if labelEnd < 0 || CharCodeAt(str, labelEnd+1) != 0x3A {
 		return false
 	}
 
 	// [label]:   destination   'title'
 	//         ^^^ skip optional whitespace here
 	for pos = labelEnd + 2; pos < max; pos++ {
-		ch := CharCodeAt(state.Src, pos)
+		ch := CharCodeAt(str, pos)
 		if ch == 0x0A {
 			lines++
 		} else if IsSpace(ch) {
@@ -139,6 +139,8 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 		return false
 	}
 
+	//utils.PrettyPrint(href)
+
 	pos = res.Pos
 	lines += res.Lines
 
@@ -150,7 +152,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	//                       ^^^ skipping those spaces
 	start := pos
 	for ; pos < max; pos++ {
-		ch := CharCodeAt(state.Src, pos)
+		ch := CharCodeAt(str, pos)
 		if ch == 0x0A {
 			lines++
 		} else if IsSpace(ch) {
@@ -176,14 +178,14 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 
 	// skip trailing spaces until the rest of the line
 	for pos < max {
-		ch := CharCodeAt(state.Src, pos)
+		ch := CharCodeAt(str, pos)
 		if !IsSpace(ch) {
 			break
 		}
 		pos++
 	}
 
-	if pos < max && CharCodeAt(state.Src, pos) != 0x0A {
+	if pos < max && CharCodeAt(str, pos) != 0x0A {
 		if utf8.RuneCountInString(title) > 0 {
 			// garbage at the end of the line after title,
 			// but it could still be a valid reference if we roll back
@@ -191,7 +193,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 			pos = destEndPos
 			lines = destEndLineNo
 			for pos < max {
-				ch := CharCodeAt(state.Src, pos)
+				ch := CharCodeAt(str, pos)
 				if !IsSpace(ch) {
 					break
 				}
@@ -200,12 +202,12 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 		}
 	}
 
-	if pos < max && CharCodeAt(state.Src, pos) != 0x0A {
+	if pos < max && CharCodeAt(str, pos) != 0x0A {
 		// garbage at the end of the line
 		return false
 	}
 
-	label := NormalizeReference(str[1:labelEnd])
+	label := NormalizeReference(Slice(str, 1, labelEnd))
 	if utf8.RuneCountInString(label) == 0 {
 		// CommonMark 0.20 disallows empty labels
 		return false
@@ -230,6 +232,5 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	state.ParentType = oldParentType
 
 	state.Line = startLine + lines + 1
-
 	return true
 }

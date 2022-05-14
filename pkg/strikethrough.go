@@ -1,6 +1,7 @@
 package pkg
 
 func (state *StateInline) Tokenize(silent bool) bool {
+	//fmt.Println("Entered Strikethrough")
 
 	start := state.Pos
 	marker := CharCodeAt(state.Src, start)
@@ -25,7 +26,7 @@ func (state *StateInline) Tokenize(silent bool) bool {
 		token := state.Push("text", "", 0)
 		token.Content = ch + ch
 
-		state.Delimiters = append(state.Delimiters, Delimiter{
+		*state.Delimiters = append(*state.Delimiters, &Delimiter{
 			Marker: marker,
 			Length: 0,
 			Token:  len(*state.Tokens) - 1,
@@ -40,11 +41,18 @@ func (state *StateInline) Tokenize(silent bool) bool {
 	return true
 }
 
-func (state *StateInline) PostProcess(delimiters []Delimiter) {
+func (state *StateInline) PostProcess(delim string, idx int) {
 
 	var loneMarkers []int
+	var delimiters *[]*Delimiter
 
-	for _, delimiter := range delimiters {
+	if delim == "delimiters" {
+		delimiters = state.Delimiters
+	} else {
+		//delimiters = state.TokensMeta[idx].Delimiters
+	}
+
+	for _, delimiter := range *delimiters {
 
 		if delimiter.Marker != 0x7E {
 			continue
@@ -54,7 +62,7 @@ func (state *StateInline) PostProcess(delimiters []Delimiter) {
 			continue
 		}
 
-		endDelim := delimiters[delimiter.End]
+		endDelim := (*delimiters)[delimiter.End]
 
 		token := (*state.Tokens)[delimiter.Token]
 		token.Type = "s_open"
@@ -122,6 +130,7 @@ func SPostProcess(
 	_ int,
 	_ bool,
 ) bool {
+	//fmt.Println("Processing Strikethrough Pairs")
 	state.Strikethrough()
 	return true
 }
@@ -129,11 +138,13 @@ func SPostProcess(
 func (state *StateInline) Strikethrough() {
 	tokensMeta := state.TokensMeta
 
-	state.PostProcess(state.Delimiters)
+	state.PostProcess("delimiters", -1)
+	//(state.Delimiters)
 
-	for _, tokenMeta := range tokensMeta {
-		if tokenMeta.Delimiters != nil {
-			state.PostProcess(tokenMeta.Delimiters)
+	for idx, tokenMeta := range tokensMeta {
+		if tokenMeta.Delimiters != nil && len(*tokenMeta.Delimiters) > 0 {
+			state.PostProcess("metaDelimiters", idx)
+			//(tokenMeta.Delimiters)
 		}
 	}
 }

@@ -15,11 +15,13 @@ func HtmlBlock(
 	return state.HtmlBlock(startLine, endLine, silent)
 }
 
-func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
+func (state *StateBlock) HtmlBlock(startLine int, endLine int, silent bool) bool {
 	//fmt.Println("Processing Html Block")
 
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
+
+	//fmt.Println(pos, max, startLine, endLine)
 
 	// if it's indented more than 3 spaces, it should be a code block
 	if state.SCount[startLine]-state.BlkIndent >= 4 {
@@ -33,11 +35,11 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
 		return false
 	}
 
-	lineText := string([]rune(state.Src)[pos:max])
+	lineText := Slice(state.Src, pos, max)
 
 	var i = 0
-	for _, re := range HTML_SEQUENCES {
-		match, _ := re.Start.MatchString(lineText)
+	for _, sequence := range HTML_SEQUENCES {
+		match, _ := sequence.Start.MatchString(lineText)
 		if match {
 			break
 		}
@@ -47,8 +49,9 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
 	if i == len(HTML_SEQUENCES) {
 		return false
 	}
-	if HTML_SEQUENCES[i].Terminate {
-		return false
+
+	if silent {
+		return HTML_SEQUENCES[i].Terminate
 	}
 
 	nextLine := startLine + 1
@@ -62,10 +65,10 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
 
 			pos = state.BMarks[nextLine] + state.TShift[nextLine]
 			max = state.EMarks[nextLine]
-			lineText = string([]rune(state.Src)[pos:max])
+			lineText = Slice(state.Src, pos, max)
 
 			matchEnd, _ = HTML_SEQUENCES[i].End.MatchString(lineText)
-			if !matchEnd {
+			if matchEnd {
 				if utf8.RuneCountInString(lineText) != 0 {
 					nextLine++
 				}
@@ -80,5 +83,6 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, _ bool) bool {
 	token.Map = []int{startLine, nextLine}
 	token.Content = state.GetLines(startLine, nextLine, state.BlkIndent, true)
 
+	//fmt.Println(token.Map)
 	return true
 }

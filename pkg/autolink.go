@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"unicode/utf8"
 )
 
@@ -43,10 +42,12 @@ func (state *StateInline) AutoLink(silent bool) bool {
 	}
 
 	url := Slice(state.Src, start+1, pos)
+	//fmt.Println(url)
 
 	if AUTOLINK_RE.MatchString(url) {
+		//fmt.Println("Got here")
 		fullUrl := state.Md.NormalizeLink(url)
-		fmt.Println(fullUrl)
+		//fmt.Println(fullUrl)
 
 		if !state.Md.ValidateLink(fullUrl) {
 			return false

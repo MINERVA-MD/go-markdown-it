@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"github.com/dlclark/regexp2"
 	"net/url"
 	"regexp"
@@ -12,8 +11,10 @@ import (
 
 var encodeCache []string
 var decodeCache []string
-var componentChars = "-_.!~*'()"
-var defaultChars = ";/?:@&=+$,-_.!~*'()#"
+var componentEncodeChars = "-_.!~*'()"
+var defaultEncodeChars = ";/?:@&=+$,-_.!~*'()#"
+var componentDecodeChars = "-_.!~*'()"
+var defaultDecodeChars = ";/?:@&=+$,#"
 var decodeChars = regexp.MustCompile("(?i)(%[a-f0-9]{2})+")
 var twoHexRe = regexp.MustCompile("(?i)^[0-9a-f]{2}$")
 var alphaCharsRe = regexp.MustCompile("(?i)^[0-9a-z]$")
@@ -84,6 +85,7 @@ func (md *MdUrl) Parse(url string, slashesDenoteHost bool) Url {
 	}
 
 	var proto = protocolPatternRe.FindAllString(rest, -1)
+
 	if len(proto) > 0 {
 		proto_ = proto[0]
 		lowerProto = strings.ToLower(proto_)
@@ -95,11 +97,16 @@ func (md *MdUrl) Parse(url string, slashesDenoteHost bool) Url {
 	// user@server is *always* interpreted as a hostname, and url
 	// resolution will treat //foo/bar as host=foo,path=bar because that's
 	// how the browser resolves relative URLs.
-	if slashesDenoteHost || utf8.RuneCountInString(proto_) > 0 || hostRe.MatchString(rest) {
+	if slashesDenoteHost ||
+		utf8.RuneCountInString(proto_) > 0 ||
+		hostRe.MatchString(rest) {
+
 		slashes = string(([]rune(rest))[0:2]) == "//"
+		//fmt.Println(slashes)
 
 		if slashes &&
-			!(utf8.RuneCountInString(proto_) > 0 && hostlessProtocol[proto_]) {
+			!(utf8.RuneCountInString(proto_) > 0 &&
+				hostlessProtocol[proto_]) {
 			rest = string(([]rune(rest))[2:])
 			retUrl.Slashes = true
 		}
@@ -140,12 +147,11 @@ func (md *MdUrl) Parse(url string, slashesDenoteHost bool) Url {
 
 		if hostEnd == -1 {
 			// atSign can be anywhere.
-			atSign = strings.LastIndex(rest, "@")
+			atSign = LastIndexOfSubstring(rest, "@")
 		} else {
-			fmt.Println("Got here")
 			// atSign must be in auth portion.
 			// http://a@b/c@d => host:b auth:a path:/c@d
-			at := strings.LastIndex(string([]rune(rest)[hostEnd:]), "@")
+			at := LastIndexOfSubstring(string([]rune(rest)[hostEnd:]), "@")
 
 			if at < 0 {
 				atSign = -1
@@ -281,13 +287,13 @@ func (md *MdUrl) ParseHost(host string, url *Url) {
 	if len(port) > 0 {
 		port_ := port[0]
 
-		if port_ == ":" {
+		if port_ != ":" {
 			url.Port = md.Slice(port_, 1, utf8.RuneCountInString(port_))
 		}
 		hostLen := utf8.RuneCountInString(host)
 		portLen := utf8.RuneCountInString(port_)
 
-		host = md.Slice(host, hostLen, portLen)
+		host = md.Slice(host, 0, hostLen-portLen)
 	}
 
 	if utf8.RuneCountInString(host) > 0 {
@@ -328,6 +334,7 @@ func (md *MdUrl) Format(url Url) string {
 
 func GetEncodeCache(exclude string) []string {
 	cache := encodeCache
+
 	if len(cache) > 0 {
 		return cache
 	}
@@ -339,15 +346,20 @@ func GetEncodeCache(exclude string) []string {
 			// always allow unencoded alphanumeric characters
 			cache = append(cache, ch)
 		} else {
+			mdUrl := &MdUrl{}
 			num := strings.ToUpper(strconv.FormatInt(int64(i), 16))
-			num = string(([]rune(num))[0 : utf8.RuneCountInString(num)-2])
-			cache = append(cache, "%"+"0"+num)
+
+			val := "0" + num
+
+			n := utf8.RuneCountInString(val)
+			val = mdUrl.Slice(val, n-2, n)
+			cache = append(cache, "%"+val)
 		}
 	}
 
 	for i := 0; i < utf8.RuneCountInString(exclude); i++ {
 
-		md := MdUrl{}
+		md := &MdUrl{}
 		ch := md.CharCodeAt(exclude, i)
 		cache[ch] = string(ch)
 	}
@@ -397,7 +409,7 @@ func (md *MdUrl) Encode(str string, exclude string, keepEscaped bool) string {
 	result := ""
 
 	if utf8.RuneCountInString(exclude) == 0 {
-		exclude = defaultChars
+		exclude = defaultEncodeChars
 	}
 
 	cache := GetEncodeCache(exclude)
@@ -441,6 +453,11 @@ func (md *MdUrl) Encode(str string, exclude string, keepEscaped bool) string {
 }
 
 func (md *MdUrl) Decode(str string, exclude string) string {
+
+	if utf8.RuneCountInString(exclude) == 0 {
+		exclude = defaultDecodeChars
+	}
+
 	cache := GetDecodeCache(exclude)
 
 	return decodeChars.ReplaceAllStringFunc(str, func(seq string) string {
@@ -561,6 +578,7 @@ func (md *MdUrl) Decode(str string, exclude string) string {
 }
 
 func (md *MdUrl) Slice(s string, start int, end int) string {
+
 	if end <= start {
 		return ""
 	}
@@ -577,5 +595,8 @@ func (md *MdUrl) CharCodeAt(s string, idx int) rune {
 }
 
 func (md *MdUrl) CharAt(s string, idx int) string {
+	if utf8.RuneCountInString(s) == 0 {
+		return ""
+	}
 	return string(md.CharCodeAt(s, idx))
 }

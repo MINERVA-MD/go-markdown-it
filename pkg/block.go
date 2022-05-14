@@ -8,7 +8,7 @@ func BlockCore(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ 
 		token.Children = []*Token{}
 		*state.Tokens = append(*state.Tokens, &token)
 	} else {
-		state.Md.Block.Parse(state.Src, &state.Md, state.Env, state.Tokens)
+		state.Md.Block.Parse(state.Src, state.Md, state.Env, state.Tokens)
 	}
 
 	//utils.PrettyPrint(state.Tokens)
