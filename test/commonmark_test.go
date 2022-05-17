@@ -90,9 +90,7 @@ func GetSpec(specs []Spec, example int) []Spec {
 	return filteredSpecs
 }
 
-func TestCommonMark(t *testing.T) {
-	//results, err := GetResults(filepath.Join("fixtures", "commonmark", "good.txt"))
-
+func TestAgainstCommonMarkSpec(t *testing.T) {
 	specsJson, err := ReadFileContents(filepath.Join("fixtures", "commonmark.0.30.json"))
 
 	if err != nil {
@@ -144,44 +142,127 @@ func TestCommonMark(t *testing.T) {
 	}
 }
 
-//func TestSpec472(t *testing.T) {
-//	var md = &pkg.MarkdownIt{}
-//	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
-//
-//	assert.Equal(t, "<hr />\n", md.Render("*\t*\t*\t\n", pkg.Env{}))
-//}
-//
-//func TestSpec489(t *testing.T) {
-//	var md = &pkg.MarkdownIt{}
-//	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
-//
-//	assert.Equal(t, "<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~</p>", md.Render("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n", pkg.Env{}))
-//}
-//
-//func TestSpec499(t *testing.T) {
-//	var md = &pkg.MarkdownIt{}
-//	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
-//
-//	assert.Equal(t, "<p>\\\t\\A\\a\\ \\3\\φ\\«</p>\n", md.Render("\\\t\\A\\a\\ \\3\\φ\\«\n", pkg.Env{}))
-//}
-//
-//func TestSpec509(t *testing.T) {
-//	var md = &pkg.MarkdownIt{}
-//	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
-//
-//	assert.Equal(t, "<p>*not emphasized*\n&lt;br/&gt; not a tag\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a heading\n[foo]: /url &quot;not a reference&quot;\n&amp;ouml; not a character entity</p>\n", md.Render("\\*not emphasized*\n\\<br/> not a tag\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a heading\n\\[foo]: /url \"not a reference\"\n\\&ouml; not a character entity\n", pkg.Env{}))
-//}
-//
-//func TestSpec534(t *testing.T) {
-//	var md = &pkg.MarkdownIt{}
-//	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
-//
-//	assert.Equal(t, "<p>\\<em>emphasis</em></p>\n", md.Render("\\\\*emphasis*\n", pkg.Env{}))
-//}
-//
-//func TestSpec555(t *testing.T) {
-//	var md = &pkg.MarkdownIt{}
-//	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
-//
-//	assert.Equal(t, "<p><code>\\[\\`</code></p>\n", md.Render("`` \\[\\` ``\n", pkg.Env{}))
-//}
+func TestCommonMarkWithGoodData(t *testing.T) {
+	result, err := GetResults(filepath.Join("fixtures", "commonmark", "good.txt"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// Process Results
+		specs := result.Fixtures
+
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+		for _, spec := range specs {
+			specTitle := "Spec: " + spec.Header + "| " + spec.Type
+
+			t.Run(specTitle, func(t *testing.T) {
+				defer func() {
+					if err := recover(); err != nil {
+						fmt.Println("stacktrace from test: " + specTitle + "\n" + string(debug.Stack()))
+						t.Fail()
+					}
+				}()
+
+				assert.Equal(t, Normalize(spec.Second.Text), md.Render(spec.First.Text, &pkg.Env{}))
+			})
+		}
+	}
+}
+
+func TestMDFiles(t *testing.T) {
+	t.Skip()
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.txt"))
+	specHTML, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.html"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// Process Results
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+		assert.Equal(t, specHTML, md.Render(specMD, &pkg.Env{}))
+	}
+}
+
+func BenchmarkMDParser(b *testing.B) {
+	b.Skip()
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.txt"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// Process Results
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+		for i := 0; i < b.N; i++ {
+			md.Parse(specMD, &pkg.Env{})
+		}
+	}
+}
+
+func BenchmarkConvertToRunes(b *testing.B) {
+	b.Skip()
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.txt"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		b.Run("File contents as Bytes", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = []byte(specMD)
+			}
+		})
+
+		b.Run("File contents as Runes", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = []rune(specMD)
+			}
+		})
+	}
+}
+
+func TestSpec472(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+
+	assert.Equal(t, "<hr />\n", md.Render("*\t*\t*\t\n", &pkg.Env{}))
+}
+
+func TestSpec489(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+
+	assert.Equal(t, "<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[]^_`{|}~</p>\n", md.Render("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~\n", &pkg.Env{}))
+}
+
+func TestSpec499(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+
+	assert.Equal(t, "<p>\\\t\\A\\a\\ \\3\\φ\\«</p>\n", md.Render("\\\t\\A\\a\\ \\3\\φ\\«\n", &pkg.Env{}))
+}
+
+func TestSpec509(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+
+	assert.Equal(t, "<p>*not emphasized*\n&lt;br/&gt; not a tag\n[not a link](/foo)\n`not code`\n1. not a list\n* not a list\n# not a heading\n[foo]: /url &quot;not a reference&quot;\n&amp;ouml; not a character entity</p>\n", md.Render("\\*not emphasized*\n\\<br/> not a tag\n\\[not a link](/foo)\n\\`not code`\n1\\. not a list\n\\* not a list\n\\# not a heading\n\\[foo]: /url \"not a reference\"\n\\&ouml; not a character entity\n", &pkg.Env{}))
+}
+
+func TestSpec534(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+
+	assert.Equal(t, "<p>\\<em>emphasis</em></p>\n", md.Render("\\\\*emphasis*\n", &pkg.Env{}))
+}
+
+func TestSpec555(t *testing.T) {
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true})
+
+	assert.Equal(t, "<p><code>\\[\\`</code></p>\n", md.Render("`` \\[\\` ``\n", &pkg.Env{}))
+}

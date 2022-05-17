@@ -64,11 +64,12 @@ func Escape(
 
 		if ch2 >= 0xDC00 && ch2 <= 0xDFFF {
 			// TODO: Double check this indexing is Unicode compliant
-			escapedStr += string(state.Src[pos+1])
+			escapedStr += string(CharCodeAt(state.Src, pos+1))
 			pos++
 		}
 	}
 
+	//fmt.Println(escapedStr)
 	origStr := `\` + escapedStr
 
 	if !silent {

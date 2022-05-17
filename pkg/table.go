@@ -20,18 +20,18 @@ func (state *StateBlock) EscapedSplit(str string) []string {
 	max := utf8.RuneCountInString(str)
 	isEscaped := false
 
-	ch := CharCodeAt(state.Src, pos)
+	ch := CharCodeAt(str, pos)
 
 	for pos < max {
 		if ch == 0x7c {
 			if !isEscaped {
 				// pipe separating cells, '|'
-				result = append(result, current+str[lastPos:pos])
+				result = append(result, current+Slice(str, lastPos, pos))
 				current = ""
 				lastPos = pos + 1
 			} else {
 				// escaped pipe, '\|'
-				current += str[lastPos : pos-1]
+				current += Slice(str, lastPos, pos-1)
 				lastPos = pos
 			}
 		}
@@ -39,10 +39,10 @@ func (state *StateBlock) EscapedSplit(str string) []string {
 		isEscaped = ch == 0x5c /* \ */
 		pos++
 
-		ch = CharCodeAt(state.Src, pos)
+		ch = CharCodeAt(str, pos)
 	}
 
-	result = append(result, current+str[lastPos:])
+	result = append(result, current+Slice(str, lastPos, utf8.RuneCountInString(str)))
 
 	return result
 }
@@ -123,6 +123,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 	lineText := state.GetLine(startLine + 1)
 
 	columns := strings.Split(lineText, "|")
+
 	var aligns []string
 
 	for i := 0; i < len(columns); i++ {
@@ -163,6 +164,8 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 	columns = state.EscapedSplit(lineText)
+
+	//fmt.Println(columns)
 
 	if len(columns) > 0 && columns[0] == "" {
 		columns = columns[1:]
@@ -265,7 +268,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 		for i := 0; i < columnCount; i++ {
 			token = state.Push("td_open", "td", 1)
-			if utf8.RuneCountInString(aligns[i]) > 0 {
+			if i < len(aligns) && utf8.RuneCountInString(aligns[i]) > 0 {
 				token.Attrs = []Attribute{
 					{
 						Name:  "style",
@@ -276,7 +279,9 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
 			token = state.Push("inline", "", 0)
 
-			if utf8.RuneCountInString(columns[i]) > 0 {
+			n := len(columns)
+			if i < n &&
+				utf8.RuneCountInString(columns[i]) > 0 {
 				token.Content = strings.TrimSpace(columns[i])
 			} else {
 				token.Content = ""

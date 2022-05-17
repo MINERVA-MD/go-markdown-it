@@ -26,7 +26,7 @@ func TestMarkdownItConstructor(t *testing.T) {
 	assert.Equal(t, errors.New("wrong Markdown-It preset \"bad preset\", check name"), err)
 
 	var md = &pkg.MarkdownIt{}
-	err = md.MarkdownIt("commonmark", pkg.Options{Html: true})
+	err = md.MarkdownIt("commonmark", pkg.Options{Html: false})
 	assert.Equal(t, nil, err)
 
 	assert.Equal(t, "<p>123</p>\n", md.Render("123", &pkg.Env{}))

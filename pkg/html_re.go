@@ -61,8 +61,10 @@ var REGEXP_ESCAPE_RE = regexp.MustCompile("[.?*+^$[\\]\\\\(){}|-]")
 
 var WHITESPACE_RE = regexp.MustCompile("\\s+")
 
-//var BETA_RE = regexp.MustCompile("ẞ")
 var SPACE_RE = regexp.MustCompile("(\\s+)")
+var LANG_ATTR = regexp.MustCompile("(\\s+)")
+
+//(`(\s+)|\w`)
 
 var NEWLINES_RE = regexp.MustCompile("\\r\\n?|\\n")
 
@@ -115,7 +117,7 @@ var BACKTICK_RE = regexp.MustCompile("^ (.+) $")
 
 var EMAIL_RE = regexp.MustCompile("^([a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$")
 var AUTOLINK_RE = regexp.MustCompile("^([a-zA-Z][a-zA-Z0-9+.\\-]{1,31}):([^<>\x00-\x20]*)$")
-var TABLE_ALIGN_RE = regexp.MustCompile("^:?-+:?")
+var TABLE_ALIGN_RE = regexp.MustCompile("^:?-+:?$")
 
 var PLUS_MINUS_RE = regexp.MustCompile("\\+-")
 var DOTS3_RE = regexp.MustCompile("\\.{2,}")

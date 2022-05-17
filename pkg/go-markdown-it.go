@@ -304,9 +304,9 @@ func (md *MarkdownIt) Parse(src string, env *Env) []*Token {
 
 	// "text"
 	md.Core.Process(state)
+	//fmt.Println(len(*state.Tokens))
 	//fmt.Println(len((*state.Tokens)[1].Children))
 	//utils.PrettyPrint(state.Tokens)
-	//utils.PrettyPrint((*state.Tokens)[1].Children)
 
 	return *state.Tokens
 }

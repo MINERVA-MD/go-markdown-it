@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"bytes"
 	"strings"
 	"unicode/utf8"
 )
@@ -225,16 +226,15 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ *Env, rend
 		info = ""
 	}
 
-	//utils.PrettyPrint(info)
-
 	if utf8.RuneCountInString(info) > 0 {
-		arr = SPACE_RE.Split(info, -1)
-		langName = arr[0]
+		//arr = LANG_ATTR.Split(info, -1)
+		arr = SplitButIncludeDelimiter(info, " ")
 
-		//fmt.Println(info)
+		langName = arr[0]
 
 		if len(arr) > 2 {
 			langAttrs = strings.Join(arr[2:], "")
+			langAttrs = strings.TrimSpace(langAttrs)
 		} else {
 			langAttrs = ""
 		}
@@ -342,4 +342,29 @@ func (rules Rules) IsRuleTypeValid(Type string) bool {
 		return false
 
 	}
+}
+
+func SplitButIncludeDelimiter(s string, del string) []string {
+	bs := []byte(s)
+	sep := []byte(del)
+	var ret [][]byte
+	var splits []string
+
+	for len(bs) > 0 {
+		i := bytes.Index(bs, sep)
+		if i == -1 {
+			ret = append(ret, bs)
+			break
+		} else {
+			ret = append(ret, bs[:i])
+			ret = append(ret, sep)
+			bs = bs[i+len(sep):]
+		}
+	}
+
+	for _, split := range ret {
+		splits = append(splits, string(split))
+	}
+
+	return splits
 }

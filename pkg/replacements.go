@@ -31,13 +31,14 @@ func ReplaceScoped(inlineTokens []*Token) {
 }
 
 func ReplaceRare(inlineTokens []*Token) {
-	inside_autolink := 0
+	insideAutolink := 0
 
 	for i := len(inlineTokens) - 1; i >= 0; i-- {
 		token := inlineTokens[i]
 
-		if token.Type == "text" && inside_autolink == 0 {
+		if token.Type == "text" && insideAutolink == 0 {
 			if RARE_RE.MatchString(token.Content) {
+				//fmt.Println("Got here")
 				token.Content = PLUS_MINUS_RE.ReplaceAllString(token.Content, "±")
 
 				// .., ..., ....... -> …
@@ -49,20 +50,22 @@ func ReplaceRare(inlineTokens []*Token) {
 				token.Content = COMMA_RE.ReplaceAllString(token.Content, ",")
 
 				// em-dash
-				token.Content, _ = EM_DASH_RE.Replace(token.Content, "$1\\u2014", 0, -1)
+				token.Content, _ = EM_DASH_RE.Replace(token.Content, "$1\u2014", 0, -1)
 
 				// en-dash
-				token.Content, _ = EN_DASH1_RE.Replace(token.Content, "$1\\u2013", 0, -1)
-				token.Content, _ = EN_DASH2_RE.Replace(token.Content, "$1\\u2013", 0, -1)
+				token.Content, _ = EN_DASH1_RE.Replace(token.Content, "$1\u2013", 0, -1)
+				token.Content, _ = EN_DASH2_RE.Replace(token.Content, "$1\u2013", 0, -1)
+
+				//fmt.Println(token.Content)
 			}
 		}
 
 		if token.Type == "link_open" && token.Info == "auto" {
-			inside_autolink--
+			insideAutolink--
 		}
 
 		if token.Type == "link_close" && token.Info == "auto" {
-			inside_autolink++
+			insideAutolink++
 		}
 	}
 }
