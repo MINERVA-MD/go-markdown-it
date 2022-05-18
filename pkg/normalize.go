@@ -14,6 +14,7 @@ func Normalize(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ 
 	src = strings.Replace(src, "\u0000", "\uFFFD", -1)
 
 	state.Src = src
+	_ = state.Src2.Init(src)
 
 	return true
 }

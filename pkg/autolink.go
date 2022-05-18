@@ -18,7 +18,7 @@ func AutoLink(
 func (state *StateInline) AutoLink(silent bool) bool {
 	pos := state.Pos
 
-	if CharCodeAt(state.Src, pos) != 0x3C {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x3C {
 		return false
 	}
 
@@ -31,7 +31,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 			return false
 		}
 
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 
 		if ch == 0x3C /* < */ {
 			return false
@@ -41,8 +41,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 		}
 	}
 
-	url := Slice(state.Src, start+1, pos)
-	//fmt.Println(url)
+	url := state.Src2.Slice(start+1, pos)
 
 	if AUTOLINK_RE.MatchString(url) {
 		//fmt.Println("Got here")

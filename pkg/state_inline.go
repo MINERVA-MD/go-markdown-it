@@ -25,6 +25,7 @@ type DelimScan struct {
 
 type StateInline struct {
 	Src              string
+	Src2             *MDString
 	Md               *MarkdownIt
 	Env              *Env
 	Pos              int
@@ -44,7 +45,12 @@ type StateInline struct {
 }
 
 func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outTokens *[]*Token) {
+	mds := &MDString{}
+	_ = mds.Init(src)
+
 	state.Src = src
+	state.Src2 = mds
+
 	state.Env = env
 	state.Md = md
 	state.Tokens = outTokens

@@ -7,6 +7,7 @@ import (
 
 type StateBlock struct {
 	Src        string
+	Src2       *MDString
 	Md         *MarkdownIt
 	Env        *Env
 	Tokens     *[]*Token
@@ -27,8 +28,12 @@ type StateBlock struct {
 }
 
 func (state *StateBlock) StateBlock(src string, md *MarkdownIt, env *Env, outTokens *[]*Token) {
+	mds := &MDString{}
+	_ = mds.Init(src)
 
 	state.Src = src
+	state.Src2 = mds
+
 	state.Md = md
 	state.Env = env
 	state.Tokens = outTokens
