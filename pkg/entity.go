@@ -64,7 +64,6 @@ func (state *StateInline) Entity(silent bool) bool {
 			return true
 		}
 	} else {
-		// TODO: Replace wit Slice function
 		slice := state.Src2.Slice(pos, state.Src2.Length)
 		match := NAMED_RE.FindStringSubmatch(slice)
 

@@ -59,14 +59,5 @@ func (c *ParserCore) Process(state *StateCore) {
 
 	for idx := 0; idx < len(rules); idx++ {
 		_ = rules[idx](state, nil, nil, 0, 0, false)
-		if idx == 1 {
-			//fmt.Println("Block ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-			//utils.PrettyPrint(state.Tokens)
-		} else if idx == 2 {
-			//fmt.Println("Inline ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-			//utils.PrettyPrint(state.Tokens)
-		}
 	}
-
-	//utils.PrettyPrint(state.Tokens)
 }

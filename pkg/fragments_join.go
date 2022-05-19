@@ -8,7 +8,6 @@ func FragmentsJoin(
 	_ int,
 	_ bool,
 ) bool {
-	//fmt.Println("Processing FragmentsJoin")
 	state.FragmentsJoin()
 	return true
 }
@@ -23,15 +22,13 @@ func FragmentsJoin(
 //
 
 func (state *StateInline) FragmentsJoin() {
-	//fmt.Println("Running FragmentsJoin")
+
 	curr := 0
 	last := 0
 	level := 0
 	tokens := state.Tokens
 	max := len(*state.Tokens)
 
-	//fmt.Println(len(*state.Tokens))
-	//utils.PrettyPrint(*state.Tokens)
 	for ; curr < max; curr++ {
 		// re-calculate levels after emphasis/strikethrough turns some text nodes
 		// into opening/closing tags
@@ -65,6 +62,4 @@ func (state *StateInline) FragmentsJoin() {
 		tokens = &_tokens
 		*state.Tokens = _tokens
 	}
-	//fmt.Println(len(*state.Tokens))
-	//utils.PrettyPrint(state.Tokens)
 }

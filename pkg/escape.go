@@ -19,7 +19,6 @@ func Escape(
 	silent bool,
 ) bool {
 
-	//fmt.Println("Entered Escape")
 	pos := state.Pos
 	max := state.PosMax
 	initEscapeMap := false
@@ -56,25 +55,21 @@ func Escape(
 		return true
 	}
 
-	// TODO: Double check this indexing is Unicode compliant
 	escapedStr, _ := state.Src2.CharAt(pos)
 
 	if ch1 >= 0xD800 && ch1 <= 0xDBFF && pos+1 < max {
 		ch2, _ = state.Src2.CharCodeAt(pos + 1)
 
 		if ch2 >= 0xDC00 && ch2 <= 0xDFFF {
-			// TODO: Double check this indexing is Unicode compliant
 			c, _ := state.Src2.CharAt(pos + 1)
 			escapedStr += c
 			pos++
 		}
 	}
 
-	//fmt.Println(escapedStr)
 	origStr := `\` + escapedStr
 
 	if !silent {
-		//fmt.Println("Got here~~~~~~~~~~~")
 		token := state.Push("text_special", "", 0)
 
 		//fmt.Println(ch1)

@@ -262,7 +262,6 @@ func (state *StateBlock) GetLines(begin int, end int, indent int, keepLastLF boo
 		}
 		line++
 	}
-	//fmt.Printf("%q", queue)
 	return strings.Join(queue[:], "")
 }
 

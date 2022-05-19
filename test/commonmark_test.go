@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 type Spec struct {
@@ -189,6 +190,11 @@ func GetFullPath(relativePath string) string {
 	return filepath.Join(base, relativePath)
 }
 
+func TimeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
+}
+
 func TestMDFilesWithCM(t *testing.T) {
 	mdSpecs := []MDSpec{
 		{
@@ -304,6 +310,89 @@ func BenchmarkMDParser(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			md.Parse(specMD, &pkg.Env{})
 		}
+	}
+}
+
+func BenchmarkMDParser2(b *testing.B) {
+
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "bench", "std.md"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// Process Results
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+		b.Run("Benchmarking Parsing", func(b *testing.B) {
+			var sum int64 = 0
+			for i := 0; i < b.N; i++ {
+				t := time.Now()
+				md.Render(specMD, &pkg.Env{})
+				sum += time.Since(t).Microseconds() * 100
+			}
+			log.Printf("Parsing took %f µs", float64(sum)/(float64(b.N)))
+		})
+	}
+}
+
+func BenchmarkMDParser3(b *testing.B) {
+
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "bench", "std.md"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// Process Results
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+		b.Run("Benchmarking Parsing @1000", func(b *testing.B) {
+
+			for i := 0; i < 1000; i++ {
+				md.Render(specMD, &pkg.Env{})
+			}
+		})
+
+		b.Run("Benchmarking Parsing @10000", func(b *testing.B) {
+
+			for i := 0; i < 10000; i++ {
+				md.Render(specMD, &pkg.Env{})
+			}
+		})
+
+		b.Run("Benchmarking Parsing @100000", func(b *testing.B) {
+
+			for i := 0; i < 100000; i++ {
+				md.Render(specMD, &pkg.Env{})
+			}
+		})
+	}
+}
+
+func BenchmarkMDParser4(b *testing.B) {
+
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "bench", "xi.engine.md"))
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		// Process Results
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+		b.Run("Benchmarking Parsing", func(b *testing.B) {
+			// first we calculate the exact time the function
+			// started the execution
+			start := time.Now()
+			// Then we calculate the execution time duration
+			// inside a deferred function, since it will be execute after f() returns
+			defer func(start time.Time) {
+				dur := time.Since(start)
+				fmt.Printf("md.Render() took %d ms to execute\n", dur.Milliseconds())
+			}(start)
+			md.Render(specMD, &pkg.Env{})
+		})
 	}
 }
 

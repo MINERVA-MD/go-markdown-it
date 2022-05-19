@@ -16,12 +16,8 @@ func HtmlBlock(
 }
 
 func (state *StateBlock) HtmlBlock(startLine int, endLine int, silent bool) bool {
-	//fmt.Println("Processing Html Block")
-
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
-
-	//fmt.Println(pos, max, startLine, endLine)
 
 	// if it's indented more than 3 spaces, it should be a code block
 	if state.SCount[startLine]-state.BlkIndent >= 4 {
@@ -82,6 +78,5 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, silent bool) bool
 	token.Map = []int{startLine, nextLine}
 	token.Content = state.GetLines(startLine, nextLine, state.BlkIndent, true)
 
-	//fmt.Println(token.Map)
 	return true
 }

@@ -31,7 +31,6 @@ func HtmlInline(
 func (state *StateInline) HtmlInline(silent bool) bool {
 	pos := state.Pos
 
-	//fmt.Println("Entered Html Inline")
 	if !state.Md.Options.Html {
 		return false
 	}

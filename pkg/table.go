@@ -61,7 +61,6 @@ func Table(
 
 func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 
-	//fmt.Println("Processing Table")
 	// should have at least two lines
 	if startLine+2 > endLine {
 		return false
@@ -165,8 +164,6 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 	columns = state.EscapedSplit(lineText)
-
-	//fmt.Println(columns)
 
 	if len(columns) > 0 && columns[0] == "" {
 		columns = columns[1:]

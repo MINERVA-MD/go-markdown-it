@@ -27,8 +27,6 @@ func (state *StateInline) Link(silent bool) bool {
 	parseReference := true
 	var res LinkResult
 
-	//fmt.Println("Entered Link")
-
 	if cc, _ := state.Src2.CharCodeAt(state.Pos); cc != 0x5B /* [ */ {
 		return false
 	}
@@ -68,8 +66,6 @@ func (state *StateInline) Link(silent bool) bool {
 		start = pos
 		res = state.Md.Helpers.ParseLinkDestination(state.Src2, pos, state.PosMax)
 
-		//fmt.Println(state.Src, pos, state.PosMax)
-		//utils.PrettyPrint(res)
 		if res.Ok {
 			href = state.Md.NormalizeLink(res.Str)
 
@@ -116,8 +112,6 @@ func (state *StateInline) Link(silent bool) bool {
 
 	if parseReference {
 		// Link reference
-
-		//utils.PrettyPrint(state.Env.References)
 		if state.Env.References == nil {
 			return false
 		}
@@ -141,24 +135,12 @@ func (state *StateInline) Link(silent bool) bool {
 			label = state.Src2.Slice(labelStart, labelEnd)
 		}
 
-		//fmt.Println(label, labelStart, labelEnd, NormalizeReference(label))
-		//utils.PrettyPrint(state.Env.References)
-
-		//str = strings.Replace(str, "", "", -1)
-
-		//fmt.Println("1")
-		//fmt.Println("label", label, strings.ToLower(label), strings.ToUpper(strings.ToLower(label)))
-		// TODO: Refactor this into NormalizeReference
 		normalizedReference := NormalizeReference(label)
-		//fmt.Println("Normalized Reference", normalizedReference)
 		if _, ok := state.Env.References[normalizedReference]; !ok {
 			state.Pos = oldPos
 			return false
 		}
 
-		//fmt.Println(label)
-		//fmt.Println("2")
-		//fmt.Println("label", label)
 		ref := state.Env.References[normalizedReference]
 		href = ref.Href
 		title = ref.Title
@@ -190,8 +172,6 @@ func (state *StateInline) Link(silent bool) bool {
 		state.LinkLevel--
 
 		token = state.Push("link_close", "a", -1)
-
-		//utils.PrettyPrint(state.Delimiters)
 	}
 
 	state.Pos = pos

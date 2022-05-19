@@ -16,7 +16,7 @@ func Image(
 }
 
 func (state *StateInline) Image(silent bool) bool {
-	//fmt.Println("Processing Image")
+
 	href := ""
 	title := ""
 	label := ""
@@ -26,14 +26,10 @@ func (state *StateInline) Image(silent bool) bool {
 	max := state.PosMax
 	var res LinkResult
 
-	//fmt.Println("Entered Image")
-	//fmt.Println(state.Src, state.Pos, CharCodeAt(state.Src, state.Pos))
 	if cc0, _ := state.Src2.CharCodeAt(state.Pos); cc0 != 0x21 /* ! */ {
-		//fmt.Println("Returning false 1")
 		return false
 	}
 	if cc1, _ := state.Src2.CharCodeAt(state.Pos + 1); cc1 != 0x5B /* [ */ {
-		//fmt.Println("Returning false 2")
 		return false
 	}
 
@@ -42,7 +38,6 @@ func (state *StateInline) Image(silent bool) bool {
 
 	// parser failed to find ']', so it's not a valid link
 	if labelEnd < 0 {
-		//fmt.Println("Returning false 3")
 		return false
 	}
 
@@ -63,7 +58,6 @@ func (state *StateInline) Image(silent bool) bool {
 		}
 
 		if pos >= max {
-			//fmt.Println("Returning false 4")
 			return false
 		}
 
@@ -112,14 +106,12 @@ func (state *StateInline) Image(silent bool) bool {
 
 		if cc, _ := state.Src2.CharCodeAt(pos); pos >= max || cc != 0x29 /* ) */ {
 			state.Pos = oldPos
-			//fmt.Println("Returning false 5")
 			return false
 		}
 		pos++
 	} else {
 		// Link reference
 		if state.Env.References == nil {
-			//fmt.Println("Returning false 6")
 			return false
 		}
 
@@ -142,12 +134,9 @@ func (state *StateInline) Image(silent bool) bool {
 			label = state.Src2.Slice(labelStart, labelEnd)
 		}
 
-		//utils.PrettyPrint(state.Env.References)
 		normalizeReference := NormalizeReference(label)
-		//fmt.Println(label)
 		if _, ok := state.Env.References[normalizeReference]; !ok {
 			state.Pos = oldPos
-			//fmt.Println("Returning false 7")
 			return false
 		}
 

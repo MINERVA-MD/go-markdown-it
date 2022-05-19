@@ -274,7 +274,6 @@ func IsMDAsciiPunct(ch rune) bool {
 }
 
 func NormalizeReference(str string) string {
-	//fmt.Println(str)
 	// Trim and collapse whitespace
 	str = strings.TrimSpace(str)
 	str = WHITESPACE_RE.ReplaceAllString(str, " ")

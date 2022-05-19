@@ -44,9 +44,7 @@ func (state *StateInline) AutoLink(silent bool) bool {
 	url := state.Src2.Slice(start+1, pos)
 
 	if AUTOLINK_RE.MatchString(url) {
-		//fmt.Println("Got here")
 		fullUrl := state.Md.NormalizeLink(url)
-		//fmt.Println(fullUrl)
 
 		if !state.Md.ValidateLink(fullUrl) {
 			return false

@@ -45,8 +45,6 @@ func NormalizeLink(url string) string {
 	mdUrl := MdUrl{}
 	var parsed = mdUrl.Parse(url, true)
 
-	//utils.PrettyPrint(parsed)
-
 	if utf8.RuneCountInString(parsed.Hostname) > 0 {
 		// Encode hostnames in urls like:
 		// `http://host/`, `https://host/`, `mailto:user@host`, `//host/`
@@ -302,11 +300,7 @@ func (md *MarkdownIt) Parse(src string, env *Env) []*Token {
 	var state = &StateCore{}
 	state.StateCore(src, md, env)
 
-	// "text"
 	md.Core.Process(state)
-	//fmt.Println(len(*state.Tokens))
-	//fmt.Println(len((*state.Tokens)[1].Children))
-	//utils.PrettyPrint(state.Tokens)
 
 	return *state.Tokens
 }
@@ -324,8 +318,6 @@ func (md *MarkdownIt) ParseInline(src string, env *Env) []*Token {
 	state.InlineMode = true
 
 	md.Core.Process(state)
-
-	//utils.PrettyPrint(state.Tokens)
 
 	return *state.Tokens
 }

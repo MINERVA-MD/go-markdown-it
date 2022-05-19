@@ -53,8 +53,6 @@ func ProcessInline(tokens *[]*Token, state *StateCore) {
 
 	var stack []StackValue
 
-	//fmt.Println("Attempting to process smartquotes")
-
 	for i = 0; i < len(*tokens); i++ {
 		token = (*tokens)[i]
 
@@ -246,7 +244,7 @@ func ReplaceAtIndex(s string, idx int, repl string) string {
 }
 
 func Smartquotes(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bool) bool {
-	//fmt.Println("Processing Smartquotes")
+
 	if !state.Md.Options.Typography {
 		return false
 	}

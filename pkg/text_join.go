@@ -2,9 +2,6 @@ package pkg
 
 func TextJoin(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ bool) bool {
 
-	//fmt.Println(len((*state.Tokens)[1].Children))
-	//utils.PrettyPrint((*state.Tokens)[1].Children)
-
 	blockTokens := state.Tokens
 	l := len(*blockTokens)
 	for j := 0; j < l; j++ {
@@ -45,7 +42,5 @@ func TextJoin(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ b
 		}
 	}
 
-	//fmt.Println(len((*state.Tokens)[1].Children))
-	//utils.PrettyPrint((*state.Tokens)[1].Children)
 	return true
 }

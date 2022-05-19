@@ -14,8 +14,6 @@ func BalancePairs(
 
 func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 
-	//fmt.Println("Processing Balance Pairs")
-
 	var delimiters *[]*Delimiter
 
 	if delim == "delimiters" {
@@ -80,8 +78,6 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 
 		newMinOpenerIdx := openerIdx
 
-		//fmt.Println(lastTokenIdx, minOpenerIdx)
-		//utils.PrettyPrint(delimiters)
 		for ; openerIdx > minOpenerIdx; openerIdx -= jumps[openerIdx] + 1 {
 			opener := (*delimiters)[openerIdx]
 
@@ -130,7 +126,6 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 					// it optimizes skips in **<...>**a**<...>** pathological case
 					lastTokenIdx = -2
 
-					//utils.PrettyPrint(opener)
 					break
 				}
 			}
@@ -156,8 +151,6 @@ func (state *StateInline) ProcessDelimiters(delim string, idx int) {
 			openersBottom[closer.Marker][openIdx] = newMinOpenerIdx
 		}
 	}
-
-	//utils.PrettyPrint(delimiters)
 }
 
 func (state *StateInline) LinkPairs() {

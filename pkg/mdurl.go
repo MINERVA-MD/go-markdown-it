@@ -102,7 +102,6 @@ func (md *MdUrl) Parse(url string, slashesDenoteHost bool) Url {
 		hostRe.MatchString(rest) {
 
 		slashes = string(([]rune(rest))[0:2]) == "//"
-		//fmt.Println(slashes)
 
 		if slashes &&
 			!(utf8.RuneCountInString(proto_) > 0 &&

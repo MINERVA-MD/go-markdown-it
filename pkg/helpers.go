@@ -20,7 +20,7 @@ func (h *Helpers) ParseLinkLabel(state *StateInline, start int, disableNested bo
 	level := 1
 
 	for state.Pos < max {
-		marker = CharCodeAt(state.Src, state.Pos)
+		marker, _ = state.Src2.CharCodeAt(state.Pos)
 		if marker == 0x5D /* ] */ {
 			level--
 			if level == 0 {

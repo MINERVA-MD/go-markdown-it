@@ -17,7 +17,6 @@ func Backtick(
 }
 
 func (state *StateInline) Backtick(silent bool) bool {
-	//fmt.Println("Entered Backtick")
 
 	pos := state.Pos
 	ch, _ := state.Src2.CharCodeAt(pos)
@@ -61,20 +60,6 @@ func (state *StateInline) Backtick(silent bool) bool {
 	matchStart := pos
 	matchEnd := pos
 
-	//fmt.Println(start, ch, pos, marker, openerLength, matchStart, matchEnd)
-	//fmt.Println(state.Src, matchEnd, strings.Index(state.Src, "`"))
-
-	//fmt.Println(strings.Index(" b `", "`"))
-
-	//fmt.Println(state.Src, matchEnd, strings.Index(state.Src, "`"))
-	//fmt.Println(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)))
-	//fmt.Println(IndexOfSubstring(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`"))
-	//fmt.Println(utf8.RuneCountInString(state.Src))
-	//fmt.Println(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)))
-	//fmt.Println(utf8.RuneCountInString(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src))))
-
-	//fmt.Println(state.Src, strings.Index(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`"))
-	// Nothing found in the cache, scan until the end of the line (or until marker is found)
 	for {
 		slice := state.Src2.Slice(matchEnd, state.Src2.Length)
 		matchStart = IndexOfSubstring(slice, "`")
@@ -101,7 +86,6 @@ func (state *StateInline) Backtick(silent bool) bool {
 				token := state.Push("code_inline", "code", 0)
 				token.Markup = marker
 				token.Content = state.Src2.Slice(pos, matchStart)
-				//fmt.Println(state.Src, pos, matchStart)
 				token.Content = NEWLINES_RE.ReplaceAllString(token.Content, " ")
 				token.Content = BACKTICK_RE.ReplaceAllString(token.Content, "$1")
 			}
@@ -121,8 +105,6 @@ func (state *StateInline) Backtick(silent bool) bool {
 	}
 
 	state.Pos += openerLength
-
-	//fmt.Println(start, ch, pos, marker, openerLength)
 
 	return true
 }

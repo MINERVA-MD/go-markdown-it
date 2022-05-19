@@ -17,7 +17,6 @@ func Hr(
 
 func (state *StateBlock) Hr(startLine int, endLine int, silent bool) bool {
 
-	//fmt.Println("Processing Hr")
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
 

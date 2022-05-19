@@ -96,8 +96,6 @@ func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, si
 	hasEmptyLines := false
 	maxNesting := state.Md.Options.MaxNesting
 
-	//fmt.Println("Inside tokenization", line, endLine)
-	//fmt.Println(line, endLine)
 	for line < endLine {
 		state.Line = state.SkipEmptyLines(line)
 		line = state.Line
@@ -126,12 +124,7 @@ func (b *ParserBlock) Tokenize(state *StateBlock, startLine int, endLine int, si
 		// - update `state.tokens`
 		// - return true
 		for i := 0; i < _len; i++ {
-			//fmt.Println("Rule: ", i)
 			ok = rules[i](nil, state, nil, line, endLine, false)
-			//fmt.Println(ok, line, endLine)
-			//utils.PrettyPrint(state.Tokens)
-			//fmt.Println(state)
-			//fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 			if ok {
 				break
 			}

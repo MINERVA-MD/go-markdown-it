@@ -108,7 +108,6 @@ func (r *Renderer) RenderInline(tokens []*Token, options Options, env *Env) stri
 func (r *Renderer) RenderInlineAsText(tokens []*Token, options Options, env Env) string {
 	var result = strings.Builder{}
 
-	//utils.PrettyPrint(tokens)
 	for _, token := range tokens {
 		if token.Type == "text" {
 			result.WriteString(token.Content)
@@ -123,17 +122,13 @@ func (r *Renderer) RenderInlineAsText(tokens []*Token, options Options, env Env)
 
 func (r *Renderer) Render(tokens []*Token, options Options, env *Env) string {
 	var result = strings.Builder{}
-
-	//utils.PrettyPrint(tokens)
+	
 	for idx, token := range tokens {
 		if token.Type == "inline" {
-			//fmt.Println("Attempting to render Inline token " + token.Content)
 			result.WriteString(r.RenderInline(token.Children, options, env))
 		} else if r.Rules.IsRuleTypeValid(token.Type) {
-			//fmt.Println("Attempting to render rule: " + token.Type)
 			result.WriteString(r.RenderRule(token.Type, tokens, idx, options, env))
 		} else {
-			//fmt.Println("Attempting to render token: " + token.Type)
 			result.WriteString(r.RenderToken(tokens, idx, options))
 		}
 	}
@@ -286,7 +281,6 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ *Env, rend
 			tmpAttrs[i].Value += " " + options.LangPrefix + langName
 		}
 
-		//utils.PrettyPrint(tmpAttrs)
 		tmpToken = &Token{Attrs: tmpAttrs}
 
 		result.WriteString("<pre><code")

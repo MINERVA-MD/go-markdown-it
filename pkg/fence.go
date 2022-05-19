@@ -16,7 +16,7 @@ func Fence(
 }
 
 func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
-	//fmt.Println("Processing Fence")
+
 	var mem int
 	var marker rune
 	var markup string
@@ -25,7 +25,6 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
 
-	//fmt.Println(startLine, endLine, pos, max)
 	// if it's indented more than 3 spaces, it should be a code block
 	if state.SCount[startLine]-state.BlkIndent >= 4 {
 		return false
@@ -125,7 +124,6 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 		state.Line += 1
 	}
 
-	//fmt.Println(startLine, nextLine, _len)
 	token := state.Push("fence", "code", 0)
 	token.Info = params
 	token.Content = state.GetLines(startLine+1, nextLine, _len, true)

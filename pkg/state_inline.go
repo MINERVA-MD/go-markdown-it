@@ -82,12 +82,6 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 }
 
 func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
-	//utils.PrettyPrint()
-	//fmt.Println(_type, tag, nesting)
-	//fmt.Println("Before")
-	//fmt.Printf("%q %q %d", _type, tag, nesting)
-	//fmt.Println("")
-	//utils.PrettyPrint(state.TokensMeta)
 
 	if utf8.RuneCountInString(state.Pending) > 0 {
 		state.PushPending()
@@ -119,9 +113,6 @@ func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
 	*state.Tokens = append(*state.Tokens, &token)
 
 	state.TokensMeta = append(state.TokensMeta, tokenMeta)
-	//utils.PrettyPrint(tokenMeta)
-	//utils.PrettyPrint(state.TokensMeta)
-
 	return &token
 }
 
@@ -151,7 +142,6 @@ func (state *StateInline) PushPending() *Token {
 	*state.Tokens = append(*state.Tokens, &token)
 	state.Pending = ""
 
-	//utils.PrettyPrint(token)
 	return &token
 }
 

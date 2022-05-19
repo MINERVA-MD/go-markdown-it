@@ -1,11 +1,9 @@
 package pkg
 
 func (state *StateInline) ETokenize(silent bool) bool {
-	//fmt.Println("Entered Emphasis Tokenization")
 	start := state.Pos
 	marker, _ := state.Src2.CharCodeAt(start)
 
-	//fmt.Println(start, marker)
 	if silent {
 		return false
 	}
@@ -20,7 +18,6 @@ func (state *StateInline) ETokenize(silent bool) bool {
 		token := state.Push("text", "", 0)
 		token.Content = string(marker)
 
-		//fmt.Println(token.Content)
 		*state.Delimiters = append(*state.Delimiters, &Delimiter{
 			Marker: marker,
 			Length: scanned.Length,
@@ -46,10 +43,7 @@ func (state *StateInline) _PostProcess(delim string, idx int) {
 		delimiters = state.TokensMeta[idx].Delimiters
 	}
 
-	//fmt.Println("Entered Emphasis Post Process")
 	max := len(*delimiters)
-
-	//utils.PrettyPrint(delimiters)
 	for i = max - 1; i >= 0; i-- {
 		startDelim = (*delimiters)[i]
 
@@ -68,7 +62,7 @@ func (state *StateInline) _PostProcess(delim string, idx int) {
 		// merge those into one strong delimiter.
 		//
 		// `<em><em>whatever</em></em>` -> `<strong>whatever</strong>`
-		//utils.PrettyPrint(startDelim)
+
 		isStrong := i > 0 &&
 			(*delimiters)[i-1].End == startDelim.End+1 &&
 			// check that first two markers match and adjacent
@@ -135,7 +129,6 @@ func EPostProcess(
 	_ int,
 	_ bool,
 ) bool {
-	//fmt.Println("Processing Emphasis")
 	state.EPostProcess()
 	return true
 }
@@ -143,7 +136,6 @@ func EPostProcess(
 func (state *StateInline) EPostProcess() {
 	tokensMeta := state.TokensMeta
 
-	//utils.PrettyPrint(state.Delimiters)
 	state._PostProcess("delimiters", -1)
 
 	for idx, tokenMeta := range tokensMeta {

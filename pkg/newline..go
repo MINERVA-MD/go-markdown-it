@@ -1,6 +1,8 @@
 package pkg
 
-import "unicode/utf8"
+import (
+	"unicode/utf8"
+)
 
 func Newline(
 	_ *StateCore,

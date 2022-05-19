@@ -117,7 +117,6 @@ func List(
 
 func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 
-	//fmt.Println("Processing List")
 	var pos int
 	var max int
 	var start int

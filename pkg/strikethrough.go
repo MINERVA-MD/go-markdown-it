@@ -1,7 +1,6 @@
 package pkg
 
 func (state *StateInline) Tokenize(silent bool) bool {
-	//fmt.Println("Entered Strikethrough")
 
 	start := state.Pos
 	marker, _ := state.Src2.CharCodeAt(start)
@@ -130,16 +129,13 @@ func SPostProcess(
 	_ int,
 	_ bool,
 ) bool {
-	//fmt.Println("Processing Strikethrough Pairs")
 	state.Strikethrough()
 	return true
 }
 
 func (state *StateInline) Strikethrough() {
 	tokensMeta := state.TokensMeta
-
 	state.PostProcess("delimiters", -1)
-	//(state.Delimiters)
 
 	for idx, tokenMeta := range tokensMeta {
 		if tokenMeta.Delimiters != nil && len(*tokenMeta.Delimiters) > 0 {

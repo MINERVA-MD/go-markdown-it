@@ -13,8 +13,6 @@ func Code(
 
 func (state *StateBlock) Code(startLine int, endLine int) bool {
 
-	//fmt.Println("Processing Code")
-
 	if state.SCount[startLine]-state.BlkIndent < 4 {
 		return false
 	}

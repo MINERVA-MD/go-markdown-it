@@ -38,7 +38,6 @@ func ReplaceRare(inlineTokens []*Token) {
 
 		if token.Type == "text" && insideAutolink == 0 {
 			if RARE_RE.MatchString(token.Content) {
-				//fmt.Println("Got here")
 				token.Content = PLUS_MINUS_RE.ReplaceAllString(token.Content, "±")
 
 				// .., ..., ....... -> …
@@ -55,8 +54,6 @@ func ReplaceRare(inlineTokens []*Token) {
 				// en-dash
 				token.Content, _ = EN_DASH1_RE.Replace(token.Content, "$1\u2013", 0, -1)
 				token.Content, _ = EN_DASH2_RE.Replace(token.Content, "$1\u2013", 0, -1)
-
-				//fmt.Println(token.Content)
 			}
 		}
 

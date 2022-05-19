@@ -11,8 +11,5 @@ func BlockCore(state *StateCore, _ *StateBlock, _ *StateInline, _ int, _ int, _ 
 		state.Md.Block.Parse(state.Src, state.Md, state.Env, state.Tokens)
 	}
 
-	//utils.PrettyPrint(state.Tokens)
-	//fmt.Println(len((*state.Tokens)[1].Children))
-	//utils.PrettyPrint((*state.Tokens)[1].Children)
 	return true
 }

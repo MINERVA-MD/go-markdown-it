@@ -17,7 +17,6 @@ func Paragraph(
 }
 
 func (state *StateBlock) Paragraph(startLine int) bool {
-	//fmt.Println("Processing Paragraph")
 
 	nextLine := startLine + 1
 	terminatorRules := state.Md.Block.Ruler.GetRules("paragraph")
@@ -56,7 +55,6 @@ func (state *StateBlock) Paragraph(startLine int) bool {
 
 	content := strings.TrimSpace(state.GetLines(startLine, nextLine, state.BlkIndent, false))
 
-	//fmt.Printf("%q", state.GetLines(startLine, nextLine, state.BlkIndent, false))
 	state.Line = nextLine
 
 	token := state.Push("paragraph_open", "p", 1)

@@ -18,7 +18,6 @@ func Reference(
 
 func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 
-	//fmt.Println("Processing Reference")
 	lines := 0
 	var endLine int
 	var labelEnd int
@@ -32,7 +31,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 		return false
 	}
 
-	if CharCodeAt(state.Src, pos) != 0x5B /* [ */ {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x5B /* [ */ {
 		return false
 	}
 
@@ -144,8 +143,6 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	if !state.Md.ValidateLink(href) {
 		return false
 	}
-
-	//utils.PrettyPrint(href)
 
 	pos = res.Pos
 	lines += res.Lines

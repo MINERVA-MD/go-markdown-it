@@ -13,7 +13,6 @@ func BlockQuote(
 
 func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) bool {
 
-	//fmt.Println("Processing BlockQuote")
 	var nextLine int
 	var oldIndent int
 	var adjustTab bool
@@ -119,7 +118,6 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	oldParentType := state.ParentType
 	state.ParentType = "blockquote"
 
-	//fmt.Println(oldParentType, oldBSCount, oldTShift, oldSCount, lastLineEmpty, pos, initial, adjustTab, spaceAfterMarker)
 	// Search the end of the block
 	//
 	// Block ends with either:

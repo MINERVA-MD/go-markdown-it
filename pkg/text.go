@@ -61,28 +61,20 @@ func Text(
 	_ int,
 	silent bool,
 ) bool {
-	//fmt.Println("Running Text")
 	var pos = state.Pos
 
 	// text_special "text"
 
 	// TODO: Fix/Remove null termination chars
-	//fmt.Println(pos, state.PosMax, CharCodeAt(state.Src, pos), IsTerminatorChar(CharCodeAt(state.Src, pos)))
 	for pos < state.PosMax && !IsTerminatorChar(CharCodeAt(state.Src, pos)) {
 		pos++
 	}
 
 	if pos == state.Pos {
-		//fmt.Println("Returning false: not text")
 		return false
 	}
 	if !silent {
 		state.Pending += state.Src2.Slice(state.Pos, pos)
-
-		//fmt.Printf("%q", Slice(state.Src, state.Pos, pos))
-		//fmt.Println("")
-		//fmt.Printf("%q", state.Pending)
-		//fmt.Println("")
 	}
 
 	state.Pos = pos

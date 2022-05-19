@@ -18,8 +18,6 @@ func LHeading(
 
 func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 
-	//fmt.Println("Processing LHeading")
-
 	var pos int
 	var max int
 	var level int
@@ -93,7 +91,6 @@ func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 
 	if level == 0 {
 		// Didn't find valid underline
-		//fmt.Println("Returning false 2")
 		return false
 	}
 
