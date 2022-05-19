@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go-markdown-it/pkg"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -178,6 +181,14 @@ type MDSpec struct {
 	Lines    int
 }
 
+func GetFullPath(relativePath string) string {
+	base, err := GetCurrPath()
+	if err != nil {
+		panic("Unable to get current path")
+	}
+	return filepath.Join(base, relativePath)
+}
+
 func TestMDFilesWithCM(t *testing.T) {
 	mdSpecs := []MDSpec{
 		{
@@ -205,7 +216,24 @@ func TestMDFilesWithCM(t *testing.T) {
 	}
 }
 
-func TestMDFilesWithTables(t *testing.T) {
+func GetDirFilenames(dir string) []string {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var filenames []string
+
+	for _, f := range files {
+		name := strings.TrimSuffix(f.Name(), filepath.Ext(f.Name()))
+		if !f.IsDir() && !Contains(filenames, name) {
+			filenames = append(filenames, name)
+		}
+	}
+	return filenames
+}
+
+func TestLargeMDTables(t *testing.T) {
 	mdSpecs := []MDSpec{
 		{
 			Title:    "Large Tables",
@@ -228,16 +256,36 @@ func TestMDFilesWithTables(t *testing.T) {
 		} else {
 			t.Run(spec.Title, func(t *testing.T) {
 				actualHTML := md.Render(specMD, &pkg.Env{})
-
-				//base, err := GetCurrPath()
-				//relativePath := filepath.Join("fixtures", "md", "cm", "tables_spec_actual.html")
-				//if err == nil {
-				//	path := filepath.Join(base, relativePath)
-				//	_ = ioutil.WriteFile(path, []byte(actualHTML), 0644)
-				//}
-
 				assert.Equal(t, specHTML, actualHTML)
 			})
+		}
+	}
+}
+
+func TestOriginalSpecs(t *testing.T) {
+
+	base, err := GetCurrPath()
+	relativePath := filepath.Join("fixtures", "md", "original")
+	if err == nil {
+		path := filepath.Join(base, relativePath)
+		filenames := GetDirFilenames(path)
+
+		for _, filename := range filenames {
+			// Process Results
+			var md = &pkg.MarkdownIt{}
+			_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
+
+			specMD, err := ReadFileContents(filepath.Join("fixtures", "md", "original", filename+".md"))
+			specHTML, err := ReadFileContents(filepath.Join("fixtures", "md", "original", filename+".html"))
+
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				t.Run(filename, func(t *testing.T) {
+					actualHTML := md.Render(specMD, &pkg.Env{})
+					assert.Equal(t, specHTML, actualHTML)
+				})
+			}
 		}
 	}
 }
