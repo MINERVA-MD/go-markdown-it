@@ -27,7 +27,7 @@ func (state *StateBlock) Heading(startLine int, _ int, silent bool) bool {
 		return false
 	}
 
-	ch := CharCodeAt(state.Src, pos)
+	ch, _ := state.Src2.CharCodeAt(pos)
 
 	if ch != 0x23 /* # */ || pos >= max {
 		return false
@@ -35,12 +35,12 @@ func (state *StateBlock) Heading(startLine int, _ int, silent bool) bool {
 
 	level := 1
 	pos++
-	ch = CharCodeAt(state.Src, pos)
+	ch, _ = state.Src2.CharCodeAt(pos)
 
 	for ch == 0x23 /* # */ && pos < max && level <= 6 {
 		level++
 		pos++
-		ch = CharCodeAt(state.Src, pos)
+		ch, _ = state.Src2.CharCodeAt(pos)
 	}
 
 	if level > 6 || (pos < max && !IsSpace(ch)) {
@@ -56,7 +56,7 @@ func (state *StateBlock) Heading(startLine int, _ int, silent bool) bool {
 	max = state.SkipSpacesBack(max, pos)
 	tmp := state.SkipCharsBack(max, 0x23, pos)
 
-	if tmp > pos && IsSpace(CharCodeAt(state.Src, tmp-1)) {
+	if cc, _ := state.Src2.CharCodeAt(tmp - 1); tmp > pos && IsSpace(cc) {
 		max = tmp
 	}
 
@@ -69,7 +69,7 @@ func (state *StateBlock) Heading(startLine int, _ int, silent bool) bool {
 
 	//  Contents
 	token = state.Push("inline", "", 0)
-	token.Content = strings.TrimSpace(string([]rune(state.Src)[pos:max]))
+	token.Content = strings.TrimSpace(state.Src2.Slice(pos, max))
 	token.Map = []int{startLine, state.Line}
 	token.Children = []*Token{}
 

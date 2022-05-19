@@ -20,7 +20,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 	//fmt.Println("Entered Backtick")
 
 	pos := state.Pos
-	ch := CharCodeAt(state.Src, pos)
+	ch, _ := state.Src2.CharCodeAt(pos)
 
 	if ch != 0x60 /* ` */ {
 		return false
@@ -31,11 +31,15 @@ func (state *StateInline) Backtick(silent bool) bool {
 	max := state.PosMax
 
 	// scan marker length
-	for pos < max && CharCodeAt(state.Src, pos) == 0x60 /* ` */ {
-		pos++
+	for {
+		if cc, _ := state.Src2.CharCodeAt(pos); pos < max && cc == 0x60 /* ` */ {
+			pos++
+		} else {
+			break
+		}
 	}
 
-	marker := Slice(state.Src, start, pos)
+	marker := state.Src2.Slice(start, pos)
 	openerLength := utf8.RuneCountInString(marker)
 
 	backTicksCheck := 0
@@ -72,18 +76,21 @@ func (state *StateInline) Backtick(silent bool) bool {
 	//fmt.Println(state.Src, strings.Index(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`"))
 	// Nothing found in the cache, scan until the end of the line (or until marker is found)
 	for {
-		matchStart = IndexOfSubstring(Slice(state.Src, matchEnd, utf8.RuneCountInString(state.Src)), "`")
+		slice := state.Src2.Slice(matchEnd, state.Src2.Length)
+		matchStart = IndexOfSubstring(slice, "`")
 		if matchStart == -1 {
 			break
 		}
 
-		//fmt.Println(matchStart, matchEnd)
-
 		matchStart = matchStart + matchEnd
 		matchEnd = matchStart + 1
 
-		for matchEnd < max && CharCodeAt(state.Src, matchEnd) == 0x60 /* ` */ {
-			matchEnd++
+		for {
+			if cc, _ := state.Src2.CharCodeAt(matchEnd); matchEnd < max && cc == 0x60 /* ` */ {
+				matchEnd++
+			} else {
+				break
+			}
 		}
 
 		closerLength := matchEnd - matchStart
@@ -93,7 +100,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 			if !silent {
 				token := state.Push("code_inline", "code", 0)
 				token.Markup = marker
-				token.Content = Slice(state.Src, pos, matchStart)
+				token.Content = state.Src2.Slice(pos, matchStart)
 				//fmt.Println(state.Src, pos, matchStart)
 				token.Content = NEWLINES_RE.ReplaceAllString(token.Content, " ")
 				token.Content = BACKTICK_RE.ReplaceAllString(token.Content, "$1")

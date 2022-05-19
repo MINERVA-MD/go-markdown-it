@@ -54,7 +54,7 @@ func (state *StateBlock) LHeading(startLine int, endLine int) bool {
 			max = state.EMarks[nextLine]
 
 			if pos < max {
-				marker = CharCodeAt(state.Src, pos)
+				marker, _ = state.Src2.CharCodeAt(pos)
 
 				if marker == 0x2D /* - */ || marker == 0x3D /* = */ {
 					pos = state.SkipChars(pos, marker)

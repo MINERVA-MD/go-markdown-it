@@ -32,7 +32,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	}
 
 	// check the block quote marker
-	if CharCodeAt(state.Src, pos) != 0x3E /* > */ {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x3E /* > */ {
 		return false
 	}
 
@@ -49,7 +49,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	offset := state.SCount[startLine] + 1
 
 	// skip one optional space after ">"
-	if CharCodeAt(state.Src, pos) == 0x20 /* space */ {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc == 0x20 /* space */ {
 		// " >   test "
 		//     ^ -- position start of line here:
 		pos++
@@ -57,7 +57,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 		offset++
 		adjustTab = false
 		spaceAfterMarker = true
-	} else if CharCodeAt(state.Src, pos) == 0x09 /* tab */ {
+	} else if cc, _ := state.Src2.CharCodeAt(pos); cc == 0x09 /* tab */ {
 		spaceAfterMarker = true
 
 		if (state.BsCount[startLine]+offset)%4 == 3 {
@@ -81,7 +81,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 	state.BMarks[startLine] = pos
 
 	for pos < max {
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 
 		if IsSpace(ch) {
 			if ch == 0x09 {
@@ -159,7 +159,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 		}
 
 		isAlreadyIncremented := false
-		if CharCodeAt(state.Src, pos) == 0x3E /* > */ && !isOutdented {
+		if cc, _ := state.Src2.CharCodeAt(pos); cc == 0x3E /* > */ && !isOutdented {
 			// This line is inside the blockquote.
 			pos++
 			isAlreadyIncremented = true
@@ -169,7 +169,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 			initial = state.SCount[nextLine] + 1
 
 			// skip one optional space after '>'
-			if CharCodeAt(state.Src, pos) == 0x20 /* space */ {
+			if cc, _ := state.Src2.CharCodeAt(pos); cc == 0x20 /* space */ {
 				// ' >   test '
 				//     ^ -- position start of line here:
 				pos++
@@ -177,7 +177,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 				offset++
 				adjustTab = false
 				spaceAfterMarker = true
-			} else if CharCodeAt(state.Src, pos) == 0x09 /* tab */ {
+			} else if cc, _ := state.Src2.CharCodeAt(pos); cc == 0x09 /* tab */ {
 				spaceAfterMarker = true
 
 				if (state.BsCount[nextLine]+offset)%4 == 3 {
@@ -201,7 +201,7 @@ func (state *StateBlock) BlockQuote(startLine int, endLine int, silent bool) boo
 			state.BMarks[nextLine] = pos
 
 			for pos < max {
-				ch := CharCodeAt(state.Src, pos)
+				ch, _ := state.Src2.CharCodeAt(pos)
 
 				if IsSpace(ch) {
 					if ch == 0x09 {

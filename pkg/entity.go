@@ -22,7 +22,7 @@ func (state *StateInline) Entity(silent bool) bool {
 	pos := state.Pos
 	max := state.PosMax
 
-	if CharCodeAt(state.Src, pos) != 0x26 /* & */ {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x26 /* & */ {
 		return false
 	}
 
@@ -30,11 +30,11 @@ func (state *StateInline) Entity(silent bool) bool {
 		return false
 	}
 
-	ch := CharCodeAt(state.Src, pos+1)
+	ch, _ := state.Src2.CharCodeAt(pos + 1)
 
 	if ch == 0x23 /* # */ {
-		// TODO: Replace wit Slice function
-		match := DIGITAL_RE.FindStringSubmatch(state.Src[pos:])
+		slice := state.Src2.Slice(pos, state.Src2.Length)
+		match := DIGITAL_RE.FindStringSubmatch(slice)
 
 		if len(match) > 0 {
 			if !silent {
@@ -65,7 +65,8 @@ func (state *StateInline) Entity(silent bool) bool {
 		}
 	} else {
 		// TODO: Replace wit Slice function
-		match := NAMED_RE.FindStringSubmatch(state.Src[pos:])
+		slice := state.Src2.Slice(pos, state.Src2.Length)
+		match := NAMED_RE.FindStringSubmatch(slice)
 
 		if len(match) > 0 {
 			if _, ok := ENTITIES[match[1]]; ok {

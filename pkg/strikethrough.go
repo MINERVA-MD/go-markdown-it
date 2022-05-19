@@ -4,7 +4,7 @@ func (state *StateInline) Tokenize(silent bool) bool {
 	//fmt.Println("Entered Strikethrough")
 
 	start := state.Pos
-	marker := CharCodeAt(state.Src, start)
+	marker, _ := state.Src2.CharCodeAt(start)
 
 	if silent {
 		return false
@@ -49,7 +49,7 @@ func (state *StateInline) PostProcess(delim string, idx int) {
 	if delim == "delimiters" {
 		delimiters = state.Delimiters
 	} else {
-		//delimiters = state.TokensMeta[idx].Delimiters
+		delimiters = state.TokensMeta[idx].Delimiters
 	}
 
 	for _, delimiter := range *delimiters {

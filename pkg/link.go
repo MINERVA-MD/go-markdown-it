@@ -29,7 +29,7 @@ func (state *StateInline) Link(silent bool) bool {
 
 	//fmt.Println("Entered Link")
 
-	if CharCodeAt(state.Src, state.Pos) != 0x5B /* [ */ {
+	if cc, _ := state.Src2.CharCodeAt(state.Pos); cc != 0x5B /* [ */ {
 		return false
 	}
 
@@ -43,7 +43,7 @@ func (state *StateInline) Link(silent bool) bool {
 
 	pos := labelEnd + 1
 
-	if pos < max && CharCodeAt(state.Src, pos) == 0x28 /* ( */ {
+	if cc, _ := state.Src2.CharCodeAt(pos); pos < max && cc == 0x28 /* ( */ {
 		// Inline link
 
 		parseReference = false
@@ -53,7 +53,7 @@ func (state *StateInline) Link(silent bool) bool {
 		pos++
 
 		for ; pos < max; pos++ {
-			code = CharCodeAt(state.Src, pos)
+			code, _ = state.Src2.CharCodeAt(pos)
 			if !IsSpace(code) && code != 0x0A {
 				break
 			}
@@ -66,7 +66,7 @@ func (state *StateInline) Link(silent bool) bool {
 		// [link](  <href>  "title"  )
 		//          ^^^^^^ parsing link destination
 		start = pos
-		res = state.Md.Helpers.ParseLinkDestination(state.Src, pos, state.PosMax)
+		res = state.Md.Helpers.ParseLinkDestination(state.Src2, pos, state.PosMax)
 
 		//fmt.Println(state.Src, pos, state.PosMax)
 		//utils.PrettyPrint(res)
@@ -83,7 +83,7 @@ func (state *StateInline) Link(silent bool) bool {
 			//                ^^ skipping these spaces
 			start = pos
 			for ; pos < max; pos++ {
-				code = CharCodeAt(state.Src, pos)
+				code, _ = state.Src2.CharCodeAt(pos)
 				if !IsSpace(code) && code != 0x0A {
 					break
 				}
@@ -91,7 +91,7 @@ func (state *StateInline) Link(silent bool) bool {
 
 			// [link](  <href>  "title"  )
 			//                  ^^^^^^^ parsing link title
-			res = state.Md.Helpers.ParseLinkTitle(state.Src, pos, state.PosMax)
+			res = state.Md.Helpers.ParseLinkTitle(state.Src2, pos, state.PosMax)
 			if pos < max && start != pos && res.Ok {
 				title = res.Str
 				pos = res.Pos
@@ -99,14 +99,15 @@ func (state *StateInline) Link(silent bool) bool {
 				// [link](  <href>  "title"  )
 				//                         ^^ skipping these spaces
 				for ; pos < max; pos++ {
-					code = CharCodeAt(state.Src, pos)
+					code, _ = state.Src2.CharCodeAt(pos)
 					if !IsSpace(code) && code != 0x0A {
 						break
 					}
 				}
 			}
 		}
-		if pos >= max || CharCodeAt(state.Src, pos) != 0x29 /* ) */ {
+
+		if cc, _ := state.Src2.CharCodeAt(pos); pos >= max || cc != 0x29 /* ) */ {
 			// parsing a valid shortcut link failed, fallback to reference
 			parseReference = true
 		}
@@ -121,11 +122,11 @@ func (state *StateInline) Link(silent bool) bool {
 			return false
 		}
 
-		if pos < max && CharCodeAt(state.Src, pos) == 0x5B /* [ */ {
+		if cc, _ := state.Src2.CharCodeAt(pos); pos < max && cc == 0x5B /* [ */ {
 			start = pos + 1
 			pos = state.Md.Helpers.ParseLinkLabel(state, pos, false)
 			if pos >= 0 {
-				label = Slice(state.Src, start, pos)
+				label = state.Src2.Slice(start, pos)
 				pos++
 			} else {
 				pos = labelEnd + 1
@@ -137,7 +138,7 @@ func (state *StateInline) Link(silent bool) bool {
 		// covers label === '' and label === undefined
 		// (collapsed reference link and shortcut reference link respectively)
 		if utf8.RuneCountInString(label) == 0 {
-			label = Slice(state.Src, labelStart, labelEnd)
+			label = state.Src2.Slice(labelStart, labelEnd)
 		}
 
 		//fmt.Println(label, labelStart, labelEnd, NormalizeReference(label))

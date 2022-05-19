@@ -57,7 +57,7 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 	state.TokensMeta = []TokenMeta{}
 
 	state.Pos = 0
-	state.PosMax = utf8.RuneCountInString(state.Src)
+	state.PosMax = state.Src2.Length
 	state.Level = 0
 	state.Pending = ""
 	state.PendingLevel = 0

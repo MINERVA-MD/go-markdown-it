@@ -3,7 +3,7 @@ package pkg
 func (state *StateInline) ETokenize(silent bool) bool {
 	//fmt.Println("Entered Emphasis Tokenization")
 	start := state.Pos
-	marker := CharCodeAt(state.Src, start)
+	marker, _ := state.Src2.CharCodeAt(start)
 
 	//fmt.Println(start, marker)
 	if silent {

@@ -25,7 +25,7 @@ func (state *StateBlock) Hr(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 
-	marker := CharCodeAt(state.Src, pos)
+	marker, _ := state.Src2.CharCodeAt(pos)
 	pos++
 
 	// Check hr marker
@@ -40,7 +40,7 @@ func (state *StateBlock) Hr(startLine int, endLine int, silent bool) bool {
 	cnt := 1
 
 	for pos < max {
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 		pos++
 
 		if ch != marker && !IsSpace(ch) {

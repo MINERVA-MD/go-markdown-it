@@ -77,7 +77,8 @@ func Text(
 		return false
 	}
 	if !silent {
-		state.Pending += Slice(state.Src, state.Pos, pos)
+		state.Pending += state.Src2.Slice(state.Pos, pos)
+
 		//fmt.Printf("%q", Slice(state.Src, state.Pos, pos))
 		//fmt.Println("")
 		//fmt.Printf("%q", state.Pending)

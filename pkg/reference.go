@@ -44,12 +44,13 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 			break
 		}
 
-		if CharCodeAt(state.Src, pos) == 0x5D /* ] */ &&
-			CharCodeAt(state.Src, pos-1) != 0x5C /* \ */ {
+		cc0, _ := state.Src2.CharCodeAt(pos)
+		cc1, _ := state.Src2.CharCodeAt(pos - 1)
+		if cc0 == 0x5D /* ] */ && cc1 != 0x5C /* \ */ {
 			if pos+1 == max {
 				return false
 			}
-			if CharCodeAt(state.Src, pos+1) != 0x3A {
+			if cc2, _ := state.Src2.CharCodeAt(pos + 1); cc2 != 0x3A {
 				return false
 			}
 			break
@@ -90,11 +91,15 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 		}
 	}
 
-	str := strings.TrimSpace(state.GetLines(startLine, nextLine, state.BlkIndent, false))
-	max = utf8.RuneCountInString(str)
+	str := &MDString{}
+	_ = str.Init(strings.TrimSpace(state.GetLines(startLine, nextLine, state.BlkIndent, false)))
+
+	//str := strings.TrimSpace(state.GetLines(startLine, nextLine, state.BlkIndent, false))
+	max = str.Length
 
 	for pos = 1; pos < max; pos++ {
-		ch := CharCodeAt(str, pos)
+		ch, _ := str.CharCodeAt(pos)
+
 		if ch == 0x5B {
 			return false
 		} else if ch == 0x5D {
@@ -104,20 +109,21 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 			lines++
 		} else if ch == 0x5C {
 			pos++
-			if pos < max && CharCodeAt(str, pos) == 0x0A {
+			if cc, _ := str.CharCodeAt(pos); pos < max && cc == 0x0A {
 				lines++
 			}
 		}
 	}
 
-	if labelEnd < 0 || CharCodeAt(str, labelEnd+1) != 0x3A {
+	if cc, _ := str.CharCodeAt(labelEnd + 1); labelEnd < 0 || cc != 0x3A {
 		return false
 	}
 
 	// [label]:   destination   'title'
 	//         ^^^ skip optional whitespace here
 	for pos = labelEnd + 2; pos < max; pos++ {
-		ch := CharCodeAt(str, pos)
+		ch, _ := str.CharCodeAt(pos)
+
 		if ch == 0x0A {
 			lines++
 		} else if IsSpace(ch) {
@@ -152,7 +158,8 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 	//                       ^^^ skipping those spaces
 	start := pos
 	for ; pos < max; pos++ {
-		ch := CharCodeAt(str, pos)
+		ch, _ := str.CharCodeAt(pos)
+
 		if ch == 0x0A {
 			lines++
 		} else if IsSpace(ch) {
@@ -178,14 +185,14 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 
 	// skip trailing spaces until the rest of the line
 	for pos < max {
-		ch := CharCodeAt(str, pos)
+		ch, _ := str.CharCodeAt(pos)
 		if !IsSpace(ch) {
 			break
 		}
 		pos++
 	}
 
-	if pos < max && CharCodeAt(str, pos) != 0x0A {
+	if cc, _ := str.CharCodeAt(pos); pos < max && cc != 0x0A {
 		if utf8.RuneCountInString(title) > 0 {
 			// garbage at the end of the line after title,
 			// but it could still be a valid reference if we roll back
@@ -193,7 +200,7 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 			pos = destEndPos
 			lines = destEndLineNo
 			for pos < max {
-				ch := CharCodeAt(str, pos)
+				ch, _ := str.CharCodeAt(pos)
 				if !IsSpace(ch) {
 					break
 				}
@@ -202,12 +209,13 @@ func (state *StateBlock) Reference(startLine int, _ int, silent bool) bool {
 		}
 	}
 
-	if pos < max && CharCodeAt(str, pos) != 0x0A {
+	if cc, _ := str.CharCodeAt(pos); pos < max && cc != 0x0A {
 		// garbage at the end of the line
 		return false
 	}
 
-	label := NormalizeReference(Slice(str, 1, labelEnd))
+	slice := str.Slice(1, labelEnd)
+	label := NormalizeReference(slice)
 	if utf8.RuneCountInString(label) == 0 {
 		// CommonMark 0.20 disallows empty labels
 		return false

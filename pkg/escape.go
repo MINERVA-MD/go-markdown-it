@@ -24,7 +24,7 @@ func Escape(
 	max := state.PosMax
 	initEscapeMap := false
 
-	if CharCodeAt(state.Src, pos) != 0x5C {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x5C {
 		return false
 	}
 	pos++
@@ -33,7 +33,7 @@ func Escape(
 		return false
 	}
 
-	ch1 := CharCodeAt(state.Src, pos)
+	ch1, _ := state.Src2.CharCodeAt(pos)
 	var ch2 rune
 
 	if ch1 == 0x0A {
@@ -45,7 +45,7 @@ func Escape(
 		// skip leading whitespaces from next line
 
 		for pos < max {
-			ch1 = CharCodeAt(state.Src, pos)
+			ch1, _ = state.Src2.CharCodeAt(pos)
 			if !IsSpace(ch1) {
 				break
 			}
@@ -57,14 +57,15 @@ func Escape(
 	}
 
 	// TODO: Double check this indexing is Unicode compliant
-	escapedStr := string(CharCodeAt(state.Src, pos))
+	escapedStr, _ := state.Src2.CharAt(pos)
 
 	if ch1 >= 0xD800 && ch1 <= 0xDBFF && pos+1 < max {
-		ch2 = CharCodeAt(state.Src, pos+1)
+		ch2, _ = state.Src2.CharCodeAt(pos + 1)
 
 		if ch2 >= 0xDC00 && ch2 <= 0xDFFF {
 			// TODO: Double check this indexing is Unicode compliant
-			escapedStr += string(CharCodeAt(state.Src, pos+1))
+			c, _ := state.Src2.CharAt(pos + 1)
+			escapedStr += c
 			pos++
 		}
 	}

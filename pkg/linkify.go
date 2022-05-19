@@ -54,13 +54,13 @@ func (state *StateInline) Linkify(silent bool) bool {
 		return false
 	}
 
-	if CharCodeAt(state.Src, pos) != 0x3A {
+	if cc1, _ := state.Src2.CharCodeAt(pos); cc1 != 0x3A {
 		return false
 	}
-	if CharCodeAt(state.Src, pos+1) != 0x2F {
+	if cc2, _ := state.Src2.CharCodeAt(pos + 1); cc2 != 0x2F {
 		return false
 	}
-	if CharCodeAt(state.Src, pos+2) != 0x2F {
+	if cc3, _ := state.Src2.CharCodeAt(pos + 2); cc3 != 0x2F {
 		return false
 	}
 
@@ -69,8 +69,7 @@ func (state *StateInline) Linkify(silent bool) bool {
 
 	// 	link := state.Md.LLinkify.matchAtStart(state.src.slice(pos - proto.length));
 	// TODO: Make proper call ^
-	// TODO: Replace with call to Slice
-	link := state.Src[pos-utf8.RuneCountInString(proto):]
+	link := state.Src2.Slice(pos-utf8.RuneCountInString(proto), state.Src2.Length)
 	if utf8.RuneCountInString(link) == 0 {
 		return false
 	}

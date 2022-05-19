@@ -14,50 +14,56 @@ type Renderer struct {
 // Running Text
 
 func (r *Renderer) RenderAttrs(token *Token) string {
-	var result = ""
+	var result = strings.Builder{}
 
 	if token.Attrs == nil {
-		return result
+		return result.String()
 	}
 
 	for _, attr := range token.Attrs {
-		result += " " + EscapeHtml(attr.Name) + "=\"" + EscapeHtml(attr.Value) + "\""
+		result.WriteString(" ")
+		result.WriteString(EscapeHtml(attr.Name))
+		result.WriteString("=\"")
+		result.WriteString(EscapeHtml(attr.Value))
+		result.WriteString("\"")
 	}
 
-	return result
+	return result.String()
 }
 
 func (r *Renderer) RenderToken(tokens []*Token, idx int, options Options) string {
 	var nextToken *Token
-	var result = ""
+	var result = strings.Builder{}
 	var needLf = false
 	var token = tokens[idx]
 
 	// Tight list paragraphs
 	if token.Hidden {
-		return result
+		return ""
 	}
 
 	if token.Block &&
 		token.Nesting != -1 &&
 		idx > 0 &&
 		tokens[idx-1].Hidden {
-		result += "\n"
+		result.WriteString("\n")
 	}
 
 	// Add token name, e.g. `<img`
 	if token.Nesting == -1 {
-		result += "</" + token.Tag
+		result.WriteString("</")
+		result.WriteString(token.Tag)
 	} else {
-		result += "<" + token.Tag
+		result.WriteString("<")
+		result.WriteString(token.Tag)
 	}
 
 	// Encode attributes, e.g. `<img src="foo"`
-	result += r.RenderAttrs(token)
+	result.WriteString(r.RenderAttrs(token))
 
 	// Add a slash for self-closing tags, e.g. `<img src="foo" /`
 	if token.Nesting == 0 && options.XhtmlOut {
-		result += " /"
+		result.WriteString(" /")
 	}
 
 	// Check if we need to add a newline after this tag
@@ -78,60 +84,60 @@ func (r *Renderer) RenderToken(tokens []*Token, idx int, options Options) string
 	}
 
 	if needLf {
-		result += ">\n"
+		result.WriteString(">\n")
 	} else {
-		result += ">"
+		result.WriteString(">")
 	}
 
-	return result
+	return result.String()
 }
 
 func (r *Renderer) RenderInline(tokens []*Token, options Options, env *Env) string {
-	var result string
+	var result = strings.Builder{}
 
 	for idx, token := range tokens {
 		if r.Rules.IsRuleTypeValid(token.Type) {
-			result += r.RenderRule(token.Type, tokens, idx, options, env)
+			result.WriteString(r.RenderRule(token.Type, tokens, idx, options, env))
 		} else {
-			result += r.RenderToken(tokens, idx, options)
+			result.WriteString(r.RenderToken(tokens, idx, options))
 		}
 	}
-	return result
+	return result.String()
 }
 
 func (r *Renderer) RenderInlineAsText(tokens []*Token, options Options, env Env) string {
-	var result = ""
+	var result = strings.Builder{}
 
 	//utils.PrettyPrint(tokens)
 	for _, token := range tokens {
 		if token.Type == "text" {
-			result += token.Content
+			result.WriteString(token.Content)
 		} else if token.Type == "image" {
-			result += r.RenderInlineAsText(token.Children, options, env)
+			result.WriteString(r.RenderInlineAsText(token.Children, options, env))
 		} else if token.Type == "softbreak" {
-			result += "\n"
+			result.WriteString("\n")
 		}
 	}
-	return result
+	return result.String()
 }
 
 func (r *Renderer) Render(tokens []*Token, options Options, env *Env) string {
-	var result = ""
+	var result = strings.Builder{}
 
 	//utils.PrettyPrint(tokens)
 	for idx, token := range tokens {
 		if token.Type == "inline" {
 			//fmt.Println("Attempting to render Inline token " + token.Content)
-			result += r.RenderInline(token.Children, options, env)
+			result.WriteString(r.RenderInline(token.Children, options, env))
 		} else if r.Rules.IsRuleTypeValid(token.Type) {
 			//fmt.Println("Attempting to render rule: " + token.Type)
-			result += r.RenderRule(token.Type, tokens, idx, options, env)
+			result.WriteString(r.RenderRule(token.Type, tokens, idx, options, env))
 		} else {
 			//fmt.Println("Attempting to render token: " + token.Type)
-			result += r.RenderToken(tokens, idx, options)
+			result.WriteString(r.RenderToken(tokens, idx, options))
 		}
 	}
-	return result
+	return result.String()
 }
 
 func (r *Renderer) RenderRule(Type string, tokens []*Token, idx int, options Options, env *Env) string {
@@ -218,6 +224,7 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ *Env, rend
 
 	var tmpToken *Token
 	var token = tokens[idx]
+	var result = strings.Builder{}
 
 	if utf8.RuneCountInString(token.Info) > 0 {
 		info = UnescapeAll(token.Info)
@@ -282,30 +289,48 @@ func (rules Rules) Fence(tokens []*Token, idx int, options Options, _ *Env, rend
 		//utils.PrettyPrint(tmpAttrs)
 		tmpToken = &Token{Attrs: tmpAttrs}
 
-		return "<pre><code" + renderer.RenderAttrs(tmpToken) + ">" +
-			highlighted +
-			"</code></pre>\n"
+		result.WriteString("<pre><code")
+		result.WriteString(renderer.RenderAttrs(tmpToken))
+		result.WriteString(">")
+		result.WriteString(highlighted)
+		result.WriteString("</code></pre>\n")
+
+		return result.String()
 	}
 
-	return "<pre><code" + renderer.RenderAttrs(token) + ">" +
-		highlighted +
-		"</code></pre>\n"
+	result.WriteString("<pre><code")
+	result.WriteString(renderer.RenderAttrs(token))
+	result.WriteString(">")
+	result.WriteString(highlighted)
+	result.WriteString("</code></pre>\n")
+
+	return result.String()
 }
 
 func (rules Rules) CodeBlock(tokens []*Token, idx int, _ Options, _ *Env, renderer *Renderer) string {
 	var token = tokens[idx]
+	var result = strings.Builder{}
 
-	return "<pre" + renderer.RenderAttrs(token) + "><code>" +
-		EscapeHtml(tokens[idx].Content) +
-		"</code></pre>\n"
+	result.WriteString("<pre")
+	result.WriteString(renderer.RenderAttrs(token))
+	result.WriteString("><code>")
+	result.WriteString(EscapeHtml(tokens[idx].Content))
+	result.WriteString("</code></pre>\n")
+
+	return result.String()
 }
 
 func (rules Rules) CodeInline(tokens []*Token, idx int, _ Options, _ *Env, renderer *Renderer) string {
 	var token = tokens[idx]
+	var result = strings.Builder{}
 
-	return "<code" + renderer.RenderAttrs(token) + ">" +
-		EscapeHtml(tokens[idx].Content) +
-		"</code>"
+	result.WriteString("<code")
+	result.WriteString(renderer.RenderAttrs(token))
+	result.WriteString(">")
+	result.WriteString(EscapeHtml(tokens[idx].Content))
+	result.WriteString("</code>")
+
+	return result.String()
 }
 
 func (rules Rules) IsRuleTypeValid(Type string) bool {

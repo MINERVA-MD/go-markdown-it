@@ -38,13 +38,13 @@ func (state *StateInline) HtmlInline(silent bool) bool {
 
 	// Check Start
 	max := state.PosMax
-	if CharCodeAt(state.Src, pos) != 0x3C /* < */ ||
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x3C /* < */ ||
 		pos+2 >= max {
 		return false
 	}
 
 	// Quick fail on second char
-	ch := CharCodeAt(state.Src, pos+1)
+	ch, _ := state.Src2.CharCodeAt(pos + 1)
 	if ch != 0x21 /* ! */ &&
 		ch != 0x3F /* ? */ &&
 		ch != 0x2F /* / */ &&
@@ -53,16 +53,19 @@ func (state *StateInline) HtmlInline(silent bool) bool {
 	}
 
 	// TODO: Replace wit Slice function
-	match := HTML_TAG_RE.FindStringSubmatch(state.Src[pos:])
+	slice := state.Src2.Slice(pos, state.Src2.Length)
+	match := HTML_TAG_RE.FindStringSubmatch(slice)
 
 	if len(match) == 0 {
 		return false
 	}
 
+	matchLen := utf8.RuneCountInString(match[0])
 	if !silent {
 		token := state.Push("html_inline", "", 0)
-		// TODO: change len to count chars instead of chars
-		token.Content = Slice(state.Src, pos, pos+utf8.RuneCountInString(match[0]))
+
+		slice := state.Src2.Slice(pos, pos+matchLen)
+		token.Content = slice
 
 		if IsLinkOpen(token.Content) {
 			state.LinkLevel++
@@ -73,7 +76,7 @@ func (state *StateInline) HtmlInline(silent bool) bool {
 		}
 	}
 
-	state.Pos += utf8.RuneCountInString(match[0])
+	state.Pos += matchLen
 
 	return true
 }

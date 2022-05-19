@@ -15,6 +15,7 @@ func (sc *StateCore) StateCore(src string, md *MarkdownIt, env *Env) {
 
 	sc.Src = src
 	sc.Src2 = mds
+
 	sc.Env = env
 	sc.Tokens = &[]*Token{}
 	sc.InlineMode = false

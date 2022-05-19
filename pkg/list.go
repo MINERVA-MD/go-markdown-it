@@ -12,7 +12,7 @@ func (state *StateBlock) SkipBulletListMarker(startLine int) int {
 	pos := state.BMarks[startLine] + state.TShift[startLine]
 	max := state.EMarks[startLine]
 
-	marker := CharCodeAt(state.Src, pos)
+	marker, _ := state.Src2.CharCodeAt(pos)
 	pos++
 
 	// Check bullet
@@ -23,7 +23,7 @@ func (state *StateBlock) SkipBulletListMarker(startLine int) int {
 	}
 
 	if pos < max {
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 
 		if !IsSpace(ch) {
 			// " -test " - is not a list item
@@ -44,7 +44,7 @@ func (state *StateBlock) SkipOrderedListMarker(startLine int) int {
 		return -1
 	}
 
-	ch := CharCodeAt(state.Src, pos)
+	ch, _ := state.Src2.CharCodeAt(pos)
 	pos++
 
 	if ch < 0x30 /* 0 */ || ch > 0x39 {
@@ -57,7 +57,7 @@ func (state *StateBlock) SkipOrderedListMarker(startLine int) int {
 			return -1
 		}
 
-		ch = CharCodeAt(state.Src, pos)
+		ch, _ = state.Src2.CharCodeAt(pos)
 		pos++
 
 		if ch >= 0x30 /* 0 */ && ch <= 0x39 {
@@ -80,7 +80,7 @@ func (state *StateBlock) SkipOrderedListMarker(startLine int) int {
 	}
 
 	if pos < max {
-		ch = CharCodeAt(state.Src, pos)
+		ch, _ = state.Src2.CharCodeAt(pos)
 
 		if !IsSpace(ch) {
 			// " 1.test " - is not a list item
@@ -169,7 +169,9 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 	if posAfterMarker >= 0 {
 		isOrdered = true
 		start = state.BMarks[startLine] + state.TShift[startLine]
-		markerValue, _ = strconv.Atoi(Slice(state.Src, start, posAfterMarker-1))
+
+		slice := state.Src2.Slice(start, posAfterMarker-1)
+		markerValue, _ = strconv.Atoi(slice)
 
 		// If we"re starting a new ordered list right after
 		// a paragraph, it should start with 1.
@@ -195,7 +197,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 	}
 
 	// We should terminate list on style change. Remember first one to compare.
-	markerCharCode := CharCodeAt(state.Src, posAfterMarker-1)
+	markerCharCode, _ := state.Src2.CharCodeAt(posAfterMarker - 1)
 
 	// For validation mode we can terminate immediately
 	if silent {
@@ -245,7 +247,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 		initial = state.SCount[nextLine] + posAfterMarker - (state.BMarks[startLine] + state.TShift[startLine])
 
 		for pos < max {
-			ch := CharCodeAt(state.Src, pos)
+			ch, _ := state.Src2.CharCodeAt(pos)
 
 			if ch == 0x09 {
 				offset += 4 - (offset+state.BsCount[nextLine])%4
@@ -284,7 +286,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 		itemLines = []int{startLine, 0}
 		token.Map = []int{startLine, 0}
 		if isOrdered {
-			token.Info = Slice(state.Src, start, posAfterMarker-1)
+			token.Info = state.Src2.Slice(start, posAfterMarker-1)
 		}
 
 		// change current state, then restore it after parser subcall
@@ -384,7 +386,7 @@ func (state *StateBlock) List(startLine int, endLine int, silent bool) bool {
 			}
 		}
 
-		if markerCharCode != CharCodeAt(state.Src, posAfterMarker-1) {
+		if cc, _ := state.Src2.CharCodeAt(posAfterMarker - 1); markerCharCode != cc {
 			break
 		}
 

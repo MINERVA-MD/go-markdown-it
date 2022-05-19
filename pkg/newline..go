@@ -16,7 +16,7 @@ func Newline(
 func (state *StateInline) Newline(silent bool) bool {
 	pos := state.Pos
 
-	if CharCodeAt(state.Src, pos) != 0x0A {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x0A {
 		return false
 	}
 
@@ -52,8 +52,12 @@ func (state *StateInline) Newline(silent bool) bool {
 
 	pos++
 
-	for pos < max && IsSpace(CharCodeAt(state.Src, pos)) {
-		pos++
+	for {
+		if cc, _ := state.Src2.CharCodeAt(pos); pos < max && IsSpace(cc) {
+			pos++
+		} else {
+			break
+		}
 	}
 
 	state.Pos = pos

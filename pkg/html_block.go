@@ -31,12 +31,11 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, silent bool) bool
 		return false
 	}
 
-	if CharCodeAt(state.Src, pos) != 0x3C {
+	if cc, _ := state.Src2.CharCodeAt(pos); cc != 0x3C {
 		return false
 	}
 
-	lineText := Slice(state.Src, pos, max)
-
+	lineText := state.Src2.Slice(pos, max)
 	var i = 0
 	for _, sequence := range HTML_SEQUENCES {
 		match, _ := sequence.Start.MatchString(lineText)
@@ -65,7 +64,7 @@ func (state *StateBlock) HtmlBlock(startLine int, endLine int, silent bool) bool
 
 			pos = state.BMarks[nextLine] + state.TShift[nextLine]
 			max = state.EMarks[nextLine]
-			lineText = Slice(state.Src, pos, max)
+			lineText = state.Src2.Slice(pos, max)
 
 			matchEnd, _ = HTML_SEQUENCES[i].End.MatchString(lineText)
 			if matchEnd {

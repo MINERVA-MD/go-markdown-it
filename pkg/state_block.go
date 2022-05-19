@@ -66,14 +66,14 @@ func (state *StateBlock) StateBlock(src string, md *MarkdownIt, env *Env, outTok
 	var indent = 0
 	var offset = 0
 
-	var s = state.Src
-	var n = utf8.RuneCountInString(s)
+	var s = state.Src2
+	var n = s.Length
 
 	var indentFound = false
 
 	for ; pos < n; pos++ {
 
-		ch := CharCodeAt(s, pos)
+		ch, _ := s.CharCodeAt(pos)
 
 		if !indentFound {
 			if IsSpace(ch) {
@@ -150,9 +150,9 @@ func (state *StateBlock) SkipEmptyLines(from int) int {
 }
 
 func (state *StateBlock) SkipSpaces(pos int) int {
-	var max = utf8.RuneCountInString(state.Src)
+	var max = state.Src2.Length
 	for ; pos < max; pos++ {
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 		if !IsSpace(ch) {
 			break
 		}
@@ -167,7 +167,7 @@ func (state *StateBlock) SkipSpacesBack(pos int, min int) int {
 
 	for pos > min {
 		pos--
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 
 		if !IsSpace(ch) {
 			return pos + 1
@@ -178,9 +178,9 @@ func (state *StateBlock) SkipSpacesBack(pos int, min int) int {
 }
 
 func (state *StateBlock) SkipChars(pos int, code rune) int {
-	var max = utf8.RuneCountInString(state.Src)
+	var max = state.Src2.Length
 	for ; pos < max; pos++ {
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 		if ch != code {
 			break
 		}
@@ -195,7 +195,7 @@ func (state *StateBlock) SkipCharsBack(pos int, code int, min int) int {
 
 	for pos > min {
 		pos--
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 
 		if rune(code) != ch {
 			return pos + 1
@@ -233,7 +233,7 @@ func (state *StateBlock) GetLines(begin int, end int, indent int, keepLastLF boo
 		}
 
 		for first < last && lineIndent < indent {
-			ch = CharCodeAt(state.Src, first)
+			ch, _ = state.Src2.CharCodeAt(first)
 
 			if IsSpace(ch) {
 				if ch == 0x09 {
@@ -251,12 +251,14 @@ func (state *StateBlock) GetLines(begin int, end int, indent int, keepLastLF boo
 			first++
 		}
 
+		slice := state.Src2.Slice(first, last)
 		if lineIndent > indent {
 			// partially expanding tabs in code blocks, e.g '\t\tfoobar'
 			// with indent=2 becomes '  \tfoobar'
-			queue[i] = strings.Join(make([]string, lineIndent-indent+1)[:], " ") + Slice(state.Src, first, last)
+
+			queue[i] = strings.Join(make([]string, lineIndent-indent+1)[:], " ") + slice
 		} else {
-			queue[i] = Slice(state.Src, first, last)
+			queue[i] = slice
 		}
 		line++
 	}
@@ -277,8 +279,6 @@ func CharCodeAt(s string, n int) rune {
 }
 
 func Slice(s string, start int, end int) string {
-	//return string([]rune(s)[start:end])
-
 	if end <= start {
 		return ""
 	}

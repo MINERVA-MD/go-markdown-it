@@ -35,7 +35,7 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 
-	marker = CharCodeAt(state.Src, pos)
+	marker, _ = state.Src2.CharCodeAt(pos)
 
 	if marker != 0x7E /* ~ */ && marker != 0x60 /* ` */ {
 		//fmt.Println("Returning false")
@@ -52,8 +52,8 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 
-	markup = Slice(state.Src, mem, pos)
-	params = Slice(state.Src, pos, max)
+	markup = state.Src2.Slice(mem, pos)
+	params = state.Src2.Slice(pos, max)
 
 	if marker == 0x60 {
 		if strings.Contains(params, string(marker)) {
@@ -88,7 +88,7 @@ func (state *StateBlock) Fence(startLine int, endLine int, silent bool) bool {
 			break
 		}
 
-		if CharCodeAt(state.Src, pos) != marker {
+		if cc, _ := state.Src2.CharCodeAt(pos); cc != marker {
 			continue
 		}
 

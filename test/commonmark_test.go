@@ -171,25 +171,80 @@ func TestCommonMarkWithGoodData(t *testing.T) {
 	}
 }
 
-func TestMDFiles(t *testing.T) {
-	t.Skip()
-	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.txt"))
-	specHTML, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.html"))
+type MDSpec struct {
+	Title    string
+	Markdown string
+	Html     string
+	Lines    int
+}
 
-	if err != nil {
-		fmt.Println(err)
-	} else {
+func TestMDFilesWithCM(t *testing.T) {
+	mdSpecs := []MDSpec{
+		{
+			Title:    "Commonmark Spec (via Markdown-It)",
+			Markdown: filepath.Join("fixtures", "md", "cm", "spec.md"),
+			Html:     filepath.Join("fixtures", "md", "cm", "spec.html"),
+		},
+	}
+
+	for _, spec := range mdSpecs {
 		// Process Results
 		var md = &pkg.MarkdownIt{}
 		_ = md.MarkdownIt("commonmark", pkg.Options{Html: true, XhtmlOut: true, LangPrefix: "language-"})
 
-		assert.Equal(t, specHTML, md.Render(specMD, &pkg.Env{}))
+		specMD, err := ReadFileContents(spec.Markdown)
+		specHTML, err := ReadFileContents(spec.Html)
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			t.Run(spec.Title, func(t *testing.T) {
+				assert.Equal(t, specHTML, md.Render(specMD, &pkg.Env{}))
+			})
+		}
+	}
+}
+
+func TestMDFilesWithTables(t *testing.T) {
+	mdSpecs := []MDSpec{
+		{
+			Title:    "Large Tables",
+			Markdown: filepath.Join("fixtures", "md", "cm", "tables_spec.md"),
+			Html:     filepath.Join("fixtures", "md", "cm", "tables_spec.html"),
+			Lines:    7580,
+		},
+	}
+
+	for _, spec := range mdSpecs {
+		// Process Results
+		var md = &pkg.MarkdownIt{}
+		_ = md.MarkdownIt("default", pkg.Options{Html: true, Typography: true, LangPrefix: ""})
+
+		specMD, err := ReadFileContents(spec.Markdown)
+		specHTML, err := ReadFileContents(spec.Html)
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			t.Run(spec.Title, func(t *testing.T) {
+				actualHTML := md.Render(specMD, &pkg.Env{})
+
+				//base, err := GetCurrPath()
+				//relativePath := filepath.Join("fixtures", "md", "cm", "tables_spec_actual.html")
+				//if err == nil {
+				//	path := filepath.Join(base, relativePath)
+				//	_ = ioutil.WriteFile(path, []byte(actualHTML), 0644)
+				//}
+
+				assert.Equal(t, specHTML, actualHTML)
+			})
+		}
 	}
 }
 
 func BenchmarkMDParser(b *testing.B) {
-	b.Skip()
-	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.txt"))
+
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.md"))
 
 	if err != nil {
 		fmt.Println(err)
@@ -206,7 +261,7 @@ func BenchmarkMDParser(b *testing.B) {
 
 func BenchmarkConvertToRunes(b *testing.B) {
 	b.Skip()
-	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.txt"))
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.md"))
 
 	if err != nil {
 		fmt.Println(err)

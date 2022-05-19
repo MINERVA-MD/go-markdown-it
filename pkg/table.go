@@ -9,14 +9,14 @@ func (state *StateBlock) GetLine(line int) string {
 	pos := state.BMarks[line] + state.TShift[line]
 	max := state.EMarks[line]
 
-	return Slice(state.Src, pos, max)
+	return state.Src2.Slice(pos, max)
 }
 
 func (state *StateBlock) EscapedSplit(str string) []string {
 	var result []string
 	pos := 0
 	lastPos := 0
-	current := ""
+	var current = ""
 	max := utf8.RuneCountInString(str)
 	isEscaped := false
 
@@ -26,6 +26,7 @@ func (state *StateBlock) EscapedSplit(str string) []string {
 		if ch == 0x7c {
 			if !isEscaped {
 				// pipe separating cells, '|'
+
 				result = append(result, current+Slice(str, lastPos, pos))
 				current = ""
 				lastPos = pos + 1
@@ -86,7 +87,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 
-	firstCh := CharCodeAt(state.Src, pos)
+	firstCh, _ := state.Src2.CharCodeAt(pos)
 	pos++
 
 	if firstCh != 0x7C /* | */ && firstCh != 0x2D /* - */ && firstCh != 0x3A {
@@ -97,7 +98,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 		return false
 	}
 
-	secondCh := CharCodeAt(state.Src, pos)
+	secondCh, _ := state.Src2.CharCodeAt(pos)
 	pos++
 
 	if secondCh != 0x7C /* | */ && secondCh != 0x2D /* - */ && secondCh != 0x3A /* : */ && !IsSpace(secondCh) {
@@ -111,7 +112,7 @@ func (state *StateBlock) Table(startLine int, endLine int, silent bool) bool {
 	}
 
 	for pos < state.EMarks[nextLine] {
-		ch := CharCodeAt(state.Src, pos)
+		ch, _ := state.Src2.CharCodeAt(pos)
 
 		if ch != 0x7C /* | */ && ch != 0x2D /* - */ && ch != 0x3A /* : */ && !IsSpace(ch) {
 			return false

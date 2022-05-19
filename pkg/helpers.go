@@ -52,7 +52,7 @@ func (h *Helpers) ParseLinkLabel(state *StateInline, start int, disableNested bo
 	return labelEnd
 }
 
-func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult {
+func (h *Helpers) ParseLinkDestination(str *MDString, pos int, max int) LinkResult {
 	lines := 0
 	start := pos
 	var level int
@@ -64,10 +64,10 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 		Str:   "",
 	}
 
-	if CharCodeAt(str, pos) == 0x3C {
+	if cc, _ := str.CharCodeAt(pos); cc == 0x3C {
 		pos++
 		for pos < max {
-			code = CharCodeAt(str, pos)
+			code, _ = str.CharCodeAt(pos)
 			if code == 0x0A {
 				return result
 			}
@@ -76,7 +76,9 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 			}
 			if code == 0x3E {
 				result.Pos = pos + 1
-				result.Str = UnescapeAll(str[start+1 : pos])
+
+				slice := str.Slice(start+1, pos)
+				result.Str = UnescapeAll(slice)
 				result.Ok = true
 				return result
 			}
@@ -96,7 +98,7 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 
 	level = 0
 	for pos < max {
-		code = CharCodeAt(str, pos)
+		code, _ = str.CharCodeAt(pos)
 
 		if code == 0x20 {
 			break
@@ -108,7 +110,7 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 		}
 
 		if code == 0x5C /* \ */ && pos+1 < max {
-			if CharCodeAt(str, pos+1) == 0x20 {
+			if cc, _ := str.CharCodeAt(pos + 1); cc == 0x20 {
 				break
 			}
 			pos += 2
@@ -139,7 +141,8 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 		return result
 	}
 
-	result.Str = UnescapeAll(Slice(str, start, pos))
+	slice := str.Slice(start, pos)
+	result.Str = UnescapeAll(slice)
 	result.Lines = lines
 	result.Pos = pos
 	result.Ok = true
@@ -147,7 +150,7 @@ func (h *Helpers) ParseLinkDestination(str string, pos int, max int) LinkResult 
 	return result
 }
 
-func (h *Helpers) ParseLinkTitle(str string, pos int, max int) LinkResult {
+func (h *Helpers) ParseLinkTitle(str *MDString, pos int, max int) LinkResult {
 	lines := 0
 	start := pos
 	var code rune
@@ -163,7 +166,7 @@ func (h *Helpers) ParseLinkTitle(str string, pos int, max int) LinkResult {
 		return result
 	}
 
-	marker = CharCodeAt(str, pos)
+	marker, _ = str.CharCodeAt(pos)
 
 	if marker != 0x22 /* " */ && marker != 0x27 /* ' */ && marker != 0x28 {
 		return result
@@ -177,11 +180,13 @@ func (h *Helpers) ParseLinkTitle(str string, pos int, max int) LinkResult {
 	}
 
 	for pos < max {
-		code = CharCodeAt(str, pos)
+		code, _ = str.CharCodeAt(pos)
 		if code == marker {
 			result.Pos = pos + 1
 			result.Lines = lines
-			result.Str = UnescapeAll(str[start+1 : pos])
+
+			slice := str.Slice(start+1, pos)
+			result.Str = UnescapeAll(slice)
 			result.Ok = true
 			return result
 		} else if code == 0x28 /* ( */ && marker == 0x29 {
@@ -190,7 +195,7 @@ func (h *Helpers) ParseLinkTitle(str string, pos int, max int) LinkResult {
 			lines++
 		} else if code == 0x5C /* \ */ && pos+1 < max {
 			pos++
-			if CharCodeAt(str, pos) == 0x0A {
+			if cc, _ := str.CharCodeAt(pos); cc == 0x0A {
 				lines++
 			}
 		}
