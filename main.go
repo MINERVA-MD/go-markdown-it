@@ -1,19 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"go-markdown-it/pkg"
-	"go-markdown-it/pkg/utils"
-	"regexp"
+	"syscall/js"
 )
 
-func main() {
-	var str = "For more information, see Chapter 3.4.5.1"
-	var re = regexp.MustCompile("(?i)see (chapter \\d+(\\.\\d)*)")
-	var found = re.FindStringSubmatch(str)
-	fmt.Println(found)
+// function definition
+func parse(this js.Value, i []js.Value) interface{} {
+	// Process Results
+	var md = &pkg.MarkdownIt{}
+	_ = md.MarkdownIt("default", pkg.Options{Html: true, Typography: true, LangPrefix: "language-"})
 
-	var mdurl = pkg.MdUrl{}
-	var url = mdurl.Parse("http://example.com?find=\\*", true)
-	utils.PrettyPrint(url)
+	return js.ValueOf(md.Render(i[0].String(), &pkg.Env{}))
+}
+
+func registerCallbacks() {
+	js.Global().Set("parse", js.FuncOf(parse))
+}
+
+func main() {
+	c := make(chan struct{}, 0)
+
+	println("WASM Go Initialized")
+	// register functions
+	registerCallbacks()
+	<-c
 }

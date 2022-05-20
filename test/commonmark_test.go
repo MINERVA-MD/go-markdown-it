@@ -29,6 +29,13 @@ type Spec struct {
 	MarkdownIt string
 }
 
+type MDSpec struct {
+	Title    string
+	Markdown string
+	Html     string
+	Lines    int
+}
+
 func GetCurrPath() (string, error) {
 	currDir, err := os.Getwd()
 
@@ -57,20 +64,24 @@ func GetResults(relativePath string) (Result, error) {
 	return Result{}, err
 }
 
-func ReadFileContents(relativePath string) (string, error) {
+func GetFullPath(relativePath string) string {
 	base, err := GetCurrPath()
-
-	if err == nil {
-		path := filepath.Join(base, relativePath)
-		dat, err := os.ReadFile(path)
-
-		if err != nil {
-			return "", err
-		} else {
-			return string(dat), nil
-		}
+	if err != nil {
+		panic("Unable to get current path")
 	}
-	return "", err
+	return filepath.Join(base, relativePath)
+}
+
+func ReadFileContents(relativePath string) (string, error) {
+	path := GetFullPath(relativePath)
+
+	dat, err := os.ReadFile(path)
+
+	if err != nil {
+		return "", err
+	} else {
+		return string(dat), nil
+	}
 }
 
 func Normalize(text string) string {
@@ -173,26 +184,6 @@ func TestCommonMarkWithGoodData(t *testing.T) {
 			})
 		}
 	}
-}
-
-type MDSpec struct {
-	Title    string
-	Markdown string
-	Html     string
-	Lines    int
-}
-
-func GetFullPath(relativePath string) string {
-	base, err := GetCurrPath()
-	if err != nil {
-		panic("Unable to get current path")
-	}
-	return filepath.Join(base, relativePath)
-}
-
-func TimeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
-	log.Printf("%s took %s", name, elapsed)
 }
 
 func TestMDFilesWithCM(t *testing.T) {
