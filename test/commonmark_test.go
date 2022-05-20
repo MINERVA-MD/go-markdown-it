@@ -289,7 +289,7 @@ func TestOriginalSpecs(t *testing.T) {
 
 func BenchmarkMDParser(b *testing.B) {
 
-	specMD, err := ReadFileContents(filepath.Join("fixtures", "commonmark", "spec.md"))
+	specMD, err := ReadFileContents(filepath.Join("fixtures", "md", "cm", "spec.md"))
 
 	if err != nil {
 		fmt.Println(err)
