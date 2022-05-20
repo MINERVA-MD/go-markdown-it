@@ -340,20 +340,32 @@ func BenchmarkMDParser3(b *testing.B) {
 
 		b.Run("Benchmarking Parsing @1000", func(b *testing.B) {
 
+			start := time.Now()
+			// Then we calculate the execution time duration
+			// inside a deferred function, since it will be execute after f() returns
+			defer func(start time.Time) {
+				dur := time.Since(start)
+				fmt.Printf("md.Render() took %d ms to execute\n", dur.Milliseconds())
+			}(start)
 			for i := 0; i < 1000; i++ {
 				md.Render(specMD, &pkg.Env{})
 			}
 		})
 
 		b.Run("Benchmarking Parsing @10000", func(b *testing.B) {
-
+			start := time.Now()
+			// Then we calculate the execution time duration
+			// inside a deferred function, since it will be execute after f() returns
+			defer func(start time.Time) {
+				dur := time.Since(start)
+				fmt.Printf("md.Render() took %d ms to execute\n", dur.Milliseconds())
+			}(start)
 			for i := 0; i < 10000; i++ {
 				md.Render(specMD, &pkg.Env{})
 			}
 		})
 
 		b.Run("Benchmarking Parsing @100000", func(b *testing.B) {
-
 			for i := 0; i < 100000; i++ {
 				md.Render(specMD, &pkg.Env{})
 			}

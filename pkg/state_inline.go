@@ -31,6 +31,7 @@ type StateInline struct {
 	Pos              int
 	PosMax           int
 	Pending          string
+	Pending2         *MDString
 	Level            int
 	PendingLevel     int
 	Tokens           *[]*Token
@@ -48,6 +49,9 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 	mds := &MDString{}
 	_ = mds.Init(src)
 
+	pending := &MDString{}
+	_ = pending.Init(src)
+
 	state.Src = src
 	state.Src2 = mds
 
@@ -60,6 +64,7 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 	state.PosMax = state.Src2.Length
 	state.Level = 0
 	state.Pending = ""
+	state.Pending2 = pending
 	state.PendingLevel = 0
 
 	// Stores { start: end } pairs. Useful for backtrack
@@ -141,6 +146,7 @@ func (state *StateInline) PushPending() *Token {
 	token.Level = state.PendingLevel
 	*state.Tokens = append(*state.Tokens, &token)
 	state.Pending = ""
+	state.Pending2.Reset()
 
 	return &token
 }
@@ -153,24 +159,28 @@ func (state *StateInline) ScanDelims(start int, canSplitWord bool) DelimScan {
 	max := state.PosMax
 	leftFlanking := true
 	rightFlanking := true
-	marker := CharCodeAt(state.Src, start)
+	marker, _ := state.Src2.CharCodeAt(start)
 
 	// treat beginning of the line as a whitespace
 	if start > 0 {
-		lastChar = CharCodeAt(state.Src, start-1)
+		lastChar, _ = state.Src2.CharCodeAt(start - 1)
 	} else {
 		lastChar = 0x20
 	}
 
-	for pos < max && CharCodeAt(state.Src, pos) == marker {
-		pos++
+	for {
+		if cc, _ := state.Src2.CharCodeAt(pos); pos < max && cc == marker {
+			pos++
+		} else {
+			break
+		}
 	}
 
 	var count = pos - start
 
 	// treat end of the line as a whitespace
 	if pos < max {
-		nextChar = CharCodeAt(state.Src, pos)
+		nextChar, _ = state.Src2.CharCodeAt(pos)
 	} else {
 		nextChar = 0x20
 	}

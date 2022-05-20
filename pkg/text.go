@@ -66,8 +66,12 @@ func Text(
 	// text_special "text"
 
 	// TODO: Fix/Remove null termination chars
-	for pos < state.PosMax && !IsTerminatorChar(CharCodeAt(state.Src, pos)) {
-		pos++
+	for {
+		if cc, _ := state.Src2.CharCodeAt(pos); pos < state.PosMax && !IsTerminatorChar(cc) {
+			pos++
+		} else {
+			break
+		}
 	}
 
 	if pos == state.Pos {
