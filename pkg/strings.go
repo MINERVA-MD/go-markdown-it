@@ -66,6 +66,7 @@ func (m *MDString) Cap() int { return cap(m.str) }
 func (m *MDString) Reset() {
 	m.addr = nil
 	m.str = nil
+	m.Length = 0
 }
 
 // grow copies the buffer to a new, larger buffer so that there are at least n
