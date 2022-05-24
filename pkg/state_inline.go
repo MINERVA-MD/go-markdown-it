@@ -1,9 +1,5 @@
 package pkg
 
-import (
-	"unicode/utf8"
-)
-
 type TokenMeta struct {
 	Delimiters *[]*Delimiter
 }
@@ -31,6 +27,7 @@ type StateInline struct {
 	Pos              int
 	PosMax           int
 	Pending          string
+	Pending2         *MDString
 	Level            int
 	PendingLevel     int
 	Tokens           *[]*Token
@@ -48,6 +45,9 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 	mds := &MDString{}
 	_ = mds.Init(src)
 
+	pending := MDString{}
+	_ = pending.Init("")
+
 	state.Src = src
 	state.Src2 = mds
 
@@ -60,6 +60,7 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 	state.PosMax = state.Src2.Length
 	state.Level = 0
 	state.Pending = ""
+	state.Pending2 = &pending
 
 	state.PendingLevel = 0
 
@@ -84,7 +85,7 @@ func (state *StateInline) StateInline(src string, md *MarkdownIt, env *Env, outT
 
 func (state *StateInline) Push(_type string, tag string, nesting int) *Token {
 
-	if utf8.RuneCountInString(state.Pending) > 0 {
+	if state.Pending2.Length > 0 {
 		state.PushPending()
 	}
 
@@ -138,10 +139,11 @@ func Copy[T any](s []*T) []*T {
 func (state *StateInline) PushPending() *Token {
 	token := GenerateToken("text", "", 0)
 
-	token.Content = state.Pending
+	token.Content = state.Pending2.String()
 	token.Level = state.PendingLevel
 	*state.Tokens = append(*state.Tokens, &token)
-	state.Pending = ""
+
+	state.Pending2.Reset()
 
 	return &token
 }

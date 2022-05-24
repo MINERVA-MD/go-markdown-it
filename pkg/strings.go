@@ -46,7 +46,8 @@ func (m *MDString) Init(s string) error {
 
 // String returns the accumulated string.
 func (m *MDString) String() string {
-	return *(*string)(unsafe.Pointer(&m.str))
+	return string(m.str)
+	//*(*string)(unsafe.Pointer(&m.str))
 }
 
 //Len returns the number of accumulated runes (characters)

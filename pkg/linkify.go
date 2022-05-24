@@ -64,7 +64,7 @@ func (state *StateInline) Linkify(silent bool) bool {
 		return false
 	}
 
-	match := SCHEME_RE.FindStringSubmatch(state.Pending)
+	match := SCHEME_RE.FindStringSubmatch(state.Pending2.String())
 	proto := match[1]
 
 	// 	link := state.Md.LLinkify.matchAtStart(state.src.slice(pos - proto.length));
@@ -86,7 +86,7 @@ func (state *StateInline) Linkify(silent bool) bool {
 	if !silent {
 		// TODO: double check negative start!!!!!
 		l := utf8.RuneCountInString(proto)
-		state.Pending = Slice(state.Pending, 0, utf8.RuneCountInString(state.Pending)-l)
+		_ = state.Pending2.Init(state.Pending2.Slice(0, state.Pending2.Length-l))
 
 		token := state.Push("link_open", "a", 1)
 		token.Attrs = []Attribute{

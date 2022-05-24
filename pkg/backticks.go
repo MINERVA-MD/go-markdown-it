@@ -50,7 +50,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 
 	if state.BackTicksScanned && (backTicksCheck <= start) {
 		if !silent {
-			state.Pending += marker
+			_ = state.Pending2.WriteString(marker)
 		}
 
 		state.Pos += openerLength
@@ -101,7 +101,7 @@ func (state *StateInline) Backtick(silent bool) bool {
 	state.BackTicksScanned = true
 
 	if !silent {
-		state.Pending += marker
+		_ = state.Pending2.WriteString(marker)
 	}
 
 	state.Pos += openerLength

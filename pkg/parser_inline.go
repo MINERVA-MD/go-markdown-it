@@ -213,13 +213,13 @@ func (i *ParserInline) Tokenize(state *StateInline) {
 			continue
 		}
 
-		// TODO: Check this
+		// TODO: Check validity
 		cc, _ := state.Src2.CharAt(state.Pos)
-		state.Pending += cc
+		_ = state.Pending2.WriteString(cc)
 		state.Pos++
 	}
 
-	if utf8.RuneCountInString(state.Pending) > 0 {
+	if state.Pending2.Length > 0 {
 		state.PushPending()
 	}
 }

@@ -78,7 +78,7 @@ func Text(
 		return false
 	}
 	if !silent {
-		state.Pending += state.Src2.Slice(state.Pos, pos)
+		_ = state.Pending2.WriteString(state.Src2.Slice(state.Pos, pos))
 	}
 
 	state.Pos = pos
